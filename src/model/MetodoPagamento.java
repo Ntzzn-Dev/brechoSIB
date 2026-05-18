@@ -11,7 +11,9 @@ public class MetodoPagamento {
     private String descMetodoPag;
     private boolean ativoMetodoPag;
 
-    public MetodoPagamento() {}
+    public MetodoPagamento() {
+        this.ativoMetodoPag = true;
+    }
 
     public MetodoPagamento(int codMetodoPag, String descMetodoPag) {
         this(codMetodoPag, descMetodoPag, true);

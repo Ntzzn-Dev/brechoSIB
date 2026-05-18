@@ -93,17 +93,29 @@ public class MarcaView implements BaseView<Marca>{
     public void create(Scanner entrada){
         try{
             System.out.println("CRIAR NOVA MARCA: ");
-            
-            String nomeMarca = Dados.requestValue(
-                "Digite o nome da marca: ", 
-                "NOME: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
+
+            Marca marca = new Marca();
+            marca.setCodMarca(elementList.size() + 1);
+
+            Dados.reviewForm(() -> {
+                if (marca.getNomeMarca() == null) {
+                    marca.setNomeMarca(
+                        Dados.requestValue(
+                            "Digite o nome da marca: ", 
+                            "NOME: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
+            }, () -> {
+                review (marca, entrada);
+            });
+
             System.out.println("");
 
-            elementList.add(new Marca(elementList.size() + 1, nomeMarca));
+            elementList.add(marca);
 
             System.out.println("Marca registrada!");
             System.out.println("==============================================\n");
@@ -117,7 +129,7 @@ public class MarcaView implements BaseView<Marca>{
         try{
             System.out.println("EDITAR MARCA: ");
 
-            Marca marca = requestByCod(
+            Marca marcaOld = requestByCod(
                 Dados.requestCod(
                     "Digite o código da marca que deseja alterar: ", 
                     "EDIÇÃO",
@@ -127,31 +139,39 @@ public class MarcaView implements BaseView<Marca>{
                 )
             );
 
-            String nomeMarca = Dados.requestValue(
-                "Deixe em branco para manter ("+marca.getNomeMarca()+")\nDigite o novo nome: ", 
-                "NOME: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            nomeMarca = nomeMarca.isEmpty() ? marca.getNomeMarca() : nomeMarca;
+            Marca marca = new Marca();
+            marca.copyFrom(marcaOld);
+
+            Dados.reviewForm(() -> {
+                if (marca.getNomeMarca().equals(marcaOld.getNomeMarca())) {
+                    String nomeMarca = Dados.requestValue(
+                        "Deixe em branco para manter ("+marca.getNomeMarca()+")\nDigite o novo nome: ", 
+                        "NOME: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    nomeMarca = nomeMarca.isEmpty() ? marca.getNomeMarca() : nomeMarca;
+                    marca.setNomeMarca(nomeMarca);
+                }
+            }, () -> {
+                review(marca, entrada);
+            });
 
             System.out.println("");
 
-            Marca newMarca = new Marca(marca.getCodMarca(), nomeMarca);
-
             System.out.println("----------------------------------------------");
             System.out.println("MARCA ANTIGA: ");
-            marca.showMarca();
+            marcaOld.showMarca();
             System.out.println("MARCA ATUALIZADA): ");
-            newMarca.showMarca();
+            marca.showMarca();
             System.out.println("----------------------------------------------");
 
             while (true) {
                 System.out.print("Deseja salvar a edição da Marca? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
                 if(opcao == 'S'){
-                    marca.copyFrom(newMarca);
+                    marcaOld.copyFrom(marca);
                     System.out.println("\nMarca atualizada!");
                     break;
                 } else if(opcao == 'N') {
@@ -249,6 +269,16 @@ public class MarcaView implements BaseView<Marca>{
             marca.showMarca();
             System.out.println("----------------------------------------------");
         }
+
+        System.out.println("\n======= Pressione ENTER para continuar =======\n");
+        entrada.nextLine();
+    }
+
+    public void review(Marca marca, Scanner entrada){
+        System.out.println("----------------------------------------------");
+        System.out.println("Código:        " + (marca.getCodMarca() == -1 ? "Não preenchido ainda" : marca.getCodMarca()));
+        System.out.println("Nome:          " + (marca.getNomeMarca() == null ? "Não preenchido ainda" : marca.getNomeMarca()));
+        System.out.println("----------------------------------------------");
 
         System.out.println("\n======= Pressione ENTER para continuar =======\n");
         entrada.nextLine();

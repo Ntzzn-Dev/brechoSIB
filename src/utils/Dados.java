@@ -1,6 +1,8 @@
 package utils;
 
 import view.*;
+import model.Endereco;
+import utils.BancoDeDados;
 import java.util.Scanner;
 
 public class Dados{
@@ -24,7 +26,7 @@ public class Dados{
                         view.read(entrada);
                         continue;
                     } else if (input.equals("/cancel")){
-                        throw new CancelOperationException(action);
+                        throw new CancelOperationException("< CANCELANDO " + action + " >");
                     } else if(input.isBlank() && !aceitaVazio){
                         System.out.println("Digite um código válido.");
                         continue;
@@ -67,7 +69,7 @@ public class Dados{
                         view.read(entrada);
                         continue;
                     } else if (input.equals("/cancel")){
-                        throw new CancelOperationException(action);
+                        throw new CancelOperationException("< CANCELANDO " + action + " >");
                     } else if (!aceitaVazio || !input.isBlank()){
                         input = Formatacao.formatarCpf(input);
                     } else if(input.isBlank() && !aceitaVazio){
@@ -100,7 +102,7 @@ public class Dados{
                     String input = entrada.nextLine();
 
                     if (input.equals("/cancel")){
-                        throw new CancelOperationException(action);
+                        throw new CancelOperationException("< CANCELANDO " + action + " >");
                     } else if (input.equals("/review")){
                         throw new ReviewOperationException(action);
                     } 
@@ -141,6 +143,109 @@ public class Dados{
             } catch (ReviewOperationException e) {
                 Formatacao.patternError(e);
                 review.run();
+            }
+        }
+    }
+
+    public static Endereco searchEnd(Scanner entrada){
+        Endereco end = new Endereco();
+        while (true) {
+            System.out.println("-----------------------+----------------------");
+            System.out.println("                ENDEREÇAMENTO");
+            System.out.println("Comandos: [/review] [/cancel]");
+            System.out.println("1 - Realizar uma consulta");
+            System.out.println("2 - Cadastrar novo endereço");
+            System.out.println("3 - Indicar o endereço para essa pessoa");
+            System.out.println("-----------------------+----------------------");
+            System.out.print("Opção: ");
+            try{
+                String input = entrada.nextLine();
+                int codEnd, opcao;
+
+                if (input.equals("/cancel")){
+                    throw new CancelOperationException("< CANCELANDO ENDEREÇAMENTO >");
+                } else if (input.equals("/review")){
+                    throw new ReviewOperationException("ENDEREÇAMENTO");
+                } else {
+                    opcao = Integer.parseInt(input);
+                }
+
+                switch(opcao){
+                    case 1:
+                        BancoDeDados.enderecoV.read(entrada);
+                        break;
+                    case 2:
+                        codEnd = BancoDeDados.enderecoV.createAndSaveCod(entrada);
+                        end = BancoDeDados.enderecoV.requestByCod(codEnd);
+                        if(end != null) return end;
+                        break;
+                    case 3:
+                        System.out.print("Digite o código do endereço: ");
+                        codEnd = entrada.nextInt();
+                        entrada.nextLine();
+                        end = BancoDeDados.enderecoV.requestByCod(codEnd);
+                        if(end != null) return end;
+                        break;
+                }
+
+                return end;
+            } catch (NumberFormatException e) {
+                Formatacao.patternError(e);
+            } catch (IllegalArgumentException e) {
+                Formatacao.patternError(e);
+            }
+        }
+    }
+
+    public static Endereco searchEnd(Scanner entrada, Endereco end){
+        while (true) {
+            System.out.println("-----------------------+----------------------");
+            System.out.println("                ENDEREÇAMENTO");
+            System.out.println("Comandos: [/review] [/cancel]");
+            System.out.println("1 - Realizar uma consulta");
+            System.out.println("2 - Cadastrar novo endereço");
+            System.out.println("3 - Indicar o endereço para essa pessoa");
+            System.out.println("4 - Manter endereço atual");
+            System.out.println("-----------------------+----------------------");
+            System.out.print("Opção: ");
+            try {
+                String input = entrada.nextLine();
+                int codEnd, opcao;
+
+                if (input.equals("/cancel")){
+                    throw new CancelOperationException("< CANCELANDO ENDEREÇAMENTO >");
+                } else if (input.equals("/review")){
+                    throw new ReviewOperationException("ENDEREÇAMENTO");
+                } else {
+                    opcao = Integer.parseInt(input);
+                }
+
+                switch(opcao){
+                    case 1:
+                        BancoDeDados.enderecoV.read(entrada);
+                        break;
+                    case 2:
+                        codEnd = BancoDeDados.enderecoV.createAndSaveCod(entrada);
+                        end = BancoDeDados.enderecoV.requestByCod(codEnd);
+                        if(end != null) return end;
+                        break;
+                    case 3:
+                        System.out.print("Digite o código do endereço: ");
+                        codEnd = entrada.nextInt();
+                        entrada.nextLine();
+                        end = BancoDeDados.enderecoV.requestByCod(codEnd);
+                        if(end != null) return end;
+                        break;
+                    case 4: 
+                        if(end != null) return end;
+                        break;
+                } 
+
+                return end;
+            }catch (NumberFormatException e) {
+                Formatacao.patternError(e);
+            } catch (IllegalArgumentException e) {
+                Formatacao.patternError(e);
             }
         }
     }

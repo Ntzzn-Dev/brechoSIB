@@ -141,7 +141,7 @@ public class ClienteView implements BaseView<Cliente>{
                 
                 if (cli.getEndPessoa() == null) {
                     cli.setEndPessoa(
-                        BancoDeDados.enderecoV.searchEnd(entrada)
+                        Dados.searchEnd(entrada)
                     );
                 }
             }, () -> {
@@ -180,10 +180,10 @@ public class ClienteView implements BaseView<Cliente>{
             Dados.reviewForm(() -> {
                 if (cli.getCpfPessoa().equals(cliOld.getCpfPessoa())) {
                     String newCpfClient = Dados.requestValue(
-                        "Deixe em branco para manter ("+cli.getCpfPessoa()+")\nDigite o CPF do Cliente que deseja alterar: ",
+                        "Deixe em branco para manter ("+cli.getCpfPessoa()+")\nDigite o novo CPF: ",
                         "CPF: ",
                         "EDIÇÃO",
-                        false,
+                        true,
                         entrada
                     );
                     newCpfClient = newCpfClient.isEmpty() ? cli.getCpfPessoa() : newCpfClient;
@@ -195,7 +195,7 @@ public class ClienteView implements BaseView<Cliente>{
                         "Deixe em branco para manter ("+cli.getNomePessoa()+")\nDigite o novo nome: ", 
                         "NOME: ",
                         "EDIÇÃO",
-                        false,
+                        true,
                         entrada
                     );
                     nomeClient = nomeClient.isEmpty() ? cli.getNomePessoa() : nomeClient;
@@ -216,7 +216,7 @@ public class ClienteView implements BaseView<Cliente>{
                 
                 if (cli.getEndPessoa() == cliOld.getEndPessoa()) {
                     cli.setEndPessoa(
-                        BancoDeDados.enderecoV.searchEnd(entrada, cli.getEndPessoa())
+                        Dados.searchEnd(entrada, cli.getEndPessoa())
                     );
                 }
             }, () -> {
@@ -229,9 +229,9 @@ public class ClienteView implements BaseView<Cliente>{
             System.out.println("----------------------------------------------");
             System.out.println("CLIENTE ANTIGO: ");
             cliOld.showProp();
-            System.out.println("CLIENTE ATUALIZADO): ");
+            System.out.println("\nCLIENTE ATUALIZADO): ");
             cli.showProp();
-            System.out.println("----------------------------------------------");
+            System.out.println("\n----------------------------------------------");
 
             while (true) {
                 System.out.print("Deseja salvar a edição do Cliente? (S/N): ");
@@ -342,10 +342,13 @@ public class ClienteView implements BaseView<Cliente>{
 
     public void review(Cliente cli, Scanner entrada){
         System.out.println("----------------------------------------------");
-        System.out.println("CPF:      " + cli.getCpfPessoa());
-        System.out.println("Nome:     " + cli.getNomePessoa());
-        System.out.println("Telefone: " + cli.getTelPessoa());
-        System.out.println("\nEndereco: "); cli.getEndPessoa().showProp();
+        System.out.println("CPF:           " + (cli.getCpfPessoa() == null ? "Não preenchido ainda" : cli.getCpfPessoa()));
+        System.out.println("Nome:          " + (cli.getNomePessoa() == null ? "Não preenchido ainda" : cli.getNomePessoa()));
+        System.out.println("Telefone:      " + (cli.getTelPessoa() == null ? "Não preenchido ainda" : cli.getTelPessoa()));
+        System.out.print("\nEndereco:      ");
+        System.out.println(cli.getEndPessoa() == null ? "Não preenchido ainda" : "");
+        if (cli.getEndPessoa() != null)
+            cli.getEndPessoa().showProp();
         System.out.println("----------------------------------------------");
 
         System.out.println("\n======= Pressione ENTER para continuar =======\n");

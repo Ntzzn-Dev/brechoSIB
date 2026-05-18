@@ -108,42 +108,60 @@ public class VendaView implements BaseView<Venda>{
         try{
             System.out.println("CRIAR NOVA VENDA: ");
 
-            Cliente cliente = BancoDeDados.clienteV.requestByCpf(
-                Dados.requestCpf(
-                    "Digite o CPF do cliente: ", 
-                    "CRIAÇÃO",
-                    false,
-                    BancoDeDados.clienteV,
-                    entrada
-                )
-            );
-            System.out.println("Cliente selecionado: " + cliente.getNomePessoa());    
-
-            Funcionario func = BancoDeDados.funcionarioV.requestByCpf(
-                Dados.requestCpf(
-                    "Digite o cpf do funcionário: ", 
-                    "CRIAÇÃO",
-                    false,
-                    BancoDeDados.funcionarioV,
-                    entrada
-                )
-            );
-            System.out.println("Funcionário selecionado: " + func.getNomePessoa());
-
-            double vtVenda = Double.parseDouble(Dados.requestValue(
-                    "Digite o valor total dessa venda: ", 
-                    "VALOR: ",
-                    "CRIAÇÃO",
-                    false,
-                    entrada
-                )
-            );
-            System.out.println("");
-            
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
 
-            elementList.add(new Venda(elementList.size() + 1, LocalDateTime.now().format(formatter), cliente, func, vtVenda, 0));
+            Venda venda = new Venda();
+            venda.setCodVenda(elementList.size() + 1);
+            venda.setDataVenda(LocalDateTime.now().format(formatter));
 
+            Dados.reviewForm(() -> {
+                if (venda.getClienteVenda() == null) {
+                    Cliente cliente = BancoDeDados.clienteV.requestByCpf(
+                        Dados.requestCpf(
+                            "Digite o CPF do cliente: ", 
+                            "CRIAÇÃO",
+                            false,
+                            BancoDeDados.clienteV,
+                            entrada
+                        )
+                    );
+                    venda.setClienteVenda(cliente);
+                    System.out.println("Cliente selecionado: " + cliente.getNomePessoa() + "\n");    
+                }
+
+                if (venda.getFuncVenda() == null) {
+                    Funcionario func = BancoDeDados.funcionarioV.requestByCpf(
+                        Dados.requestCpf(
+                            "Digite o cpf do funcionário: ", 
+                            "CRIAÇÃO",
+                            false,
+                            BancoDeDados.funcionarioV,
+                            entrada
+                        )
+                    );
+                    venda.setFuncVenda(func);
+                    System.out.println("Funcionário selecionado: " + func.getNomePessoa() + "\n");
+                }
+
+                if (venda.getValorTotal() == 0.0) {
+                    venda.setValorTotal(
+                        Double.parseDouble(Dados.requestValue(
+                            "Digite o valor total dessa venda: ", 
+                            "VALOR: ",
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        ))
+                    );
+                }
+            }, () -> {
+                review(venda, entrada);
+            });
+            
+            System.out.println("");
+
+            elementList.add(venda);
+            
             System.out.println("Venda registrada!");
             System.out.println("==============================================\n");
         } catch (CancelOperationException e){
@@ -216,9 +234,12 @@ public class VendaView implements BaseView<Venda>{
             } while (vlrTotal > 0);
 
             for(VendaPagamento vp : vendasPagamentosList){
-                vp.showVendaPag();
-                System.out.println("==============================================\n");
+                if(vp.getVenda().getCodVenda() == venda.getCodVenda()){
+                    vp.showVendaPag();
+                    System.out.println("==============================================");
+                }
             }
+            System.out.println("");
 
             while (true) {
                 System.out.print("Deseja concluir o pagamento dessa venda? (S/N)\n[Essa opção não pode ser desfeita] > ");
@@ -286,11 +307,34 @@ public class VendaView implements BaseView<Venda>{
 
     @Override
     public void list(Scanner entrada){
+        try{
+            System.out.println("====================LISTAR====================");
+            System.out.println("0 -            Listar em aberto            - 0");
+            System.out.println("1 -              Listar pagas              - 1");
+            System.out.println("2 -           Listar canceladas            - 2");
+            System.out.println("3 -              Listar todas              - 3");
+            System.out.println("==============================================");
+            System.out.println("");
+            System.out.print("Digite a opção desejada: ");
+
+            int opcao = entrada.nextInt();
+            entrada.nextLine();
+            System.out.println("");
+
+            listStatus(opcao, entrada);
+        } catch (Exception e){
+            Formatacao.patternError(e);
+        }
+    }
+
+    public void listStatus(int i, Scanner entrada){
         System.out.println("VENDAS REGISTRADAS: ");
-            System.out.println("------------------+-----------------");
+        System.out.println("------------------+-----------------");
         for (Venda venda : elementList) {
-            venda.showVenda();
-            System.out.println("------------------+-----------------");
+            if(venda.getStatus() == i || i == 3){
+                venda.showVenda();
+                System.out.println("------------------+-----------------");
+            } 
         }
         
         System.out.println("\n======= Pressione ENTER para continuar =======\n");
@@ -367,4 +411,17 @@ public class VendaView implements BaseView<Venda>{
         }
     }
 
+    public void review(Venda venda, Scanner entrada){
+        System.out.println("----------------------------------------------");
+        System.out.println("Código:        " + (venda.getCodVenda() == -1 ? "Não preenchido ainda" : venda.getCodVenda()));
+        System.out.println("Data da venda: " + venda.getDataVenda());
+        System.out.println("Cliente:       " + (venda.getClienteVenda() == null ? "Não preenchido ainda" : venda.getClienteVenda().getNomePessoa()));
+        System.out.println("Funcionário:   " + (venda.getFuncVenda() == null ? "Não preenchido ainda" : venda.getFuncVenda().getNomePessoa()));
+        System.out.println("Valor total:   " + (venda.getValorTotal() == 0.0 ? "Não preenchido ainda" : venda.getValorTotal()));
+        System.out.println("Status:        " + venda.getStatusString());
+        System.out.println("----------------------------------------------");
+
+        System.out.println("\n======= Pressione ENTER para continuar =======\n");
+        entrada.nextLine();
+    }
 }

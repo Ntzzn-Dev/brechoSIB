@@ -93,16 +93,27 @@ public class CategoriaView implements BaseView<Categoria>{
     public void create(Scanner entrada){
         try{
             System.out.println("CRIAR NOVA CATEGORIA: ");
-            
-            String nomeCat = Dados.requestValue(
-                "Digite o nome da categoria: ",
-                "NOME: ",
-                "CRIAÇÃO", 
-                false, 
-                entrada
-            );
 
-            elementList.add(new Categoria(elementList.size() + 1, nomeCat));
+            Categoria cat = new Categoria();
+            cat.setCodCat(elementList.size() + 1);
+
+            Dados.reviewForm(() -> {
+                if (cat.getNomeCat() == null) {
+                        cat.setNomeCat(
+                            Dados.requestValue(
+                            "Digite o nome da categoria: ",
+                            "NOME: ",
+                            "CRIAÇÃO", 
+                            false, 
+                            entrada
+                        )
+                    );
+                }
+            }, () -> {
+                review(cat, entrada);
+            });
+
+            elementList.add(cat);
 
             System.out.println("Categoria registrada!");
             System.out.println("==============================================\n");
@@ -116,7 +127,7 @@ public class CategoriaView implements BaseView<Categoria>{
         try{
             System.out.println("EDITAR CATEGORIA: ");
 
-            Categoria cat = requestByCod(
+            Categoria catOld = requestByCod(
                 Dados.requestCod(
                     "Digite o código da categoria que deseja alterar: ", 
                     "EDIÇÃO",
@@ -126,29 +137,37 @@ public class CategoriaView implements BaseView<Categoria>{
                 )
             );
 
-            String nomeCat = Dados.requestValue(
-                "Deixe em branco para manter ("+cat.getNomeCat()+")\nDigite o novo nome: ", 
-                "NOME: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            nomeCat = nomeCat.isEmpty() ? cat.getNomeCat() : nomeCat;
-
-            Categoria newCat = new Categoria(cat.getCodCat(), nomeCat);
+            Categoria cat = new Categoria();
+            cat.copyFrom(catOld);
+            
+            Dados.reviewForm(() -> {
+                if (cat.getNomeCat().equals(catOld.getNomeCat())) {
+                    String nomeCat = Dados.requestValue(
+                        "Deixe em branco para manter ("+cat.getNomeCat()+")\nDigite o novo nome: ", 
+                        "NOME: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    nomeCat = nomeCat.isEmpty() ? cat.getNomeCat() : nomeCat;
+                    cat.setNomeCat(nomeCat);
+                }
+            }, () -> {
+                review(cat, entrada);
+            });
 
             System.out.println("----------------------------------------------");
             System.out.println("CATEGORIA ANTIGA: ");
-            cat.showProp();
+            catOld.showProp();
             System.out.println("CATEGORIA ATUALIZADA): ");
-            newCat.showProp();
+            cat.showProp();
             System.out.println("----------------------------------------------");
 
             while (true) {
                 System.out.print("Deseja salvar a edição da categoria? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
                 if(opcao == 'S'){
-                    cat.copyFrom(newCat);
+                    catOld.copyFrom(cat);
                     System.out.println("\nCategoria atualizada!");
                     break;
                 } else if(opcao == 'N') {
@@ -247,6 +266,16 @@ public class CategoriaView implements BaseView<Categoria>{
             cat.showProp();
             System.out.println("----------------------------------------------");
         }
+
+        System.out.println("\n======= Pressione ENTER para continuar =======\n");
+        entrada.nextLine();
+    }
+
+    public void review(Categoria cat, Scanner entrada){
+        System.out.println("----------------------------------------------");
+        System.out.println("Código:        " + (cat.getCodCat() == -1 ? "Não preenchido ainda" : cat.getCodCat()));
+        System.out.println("Nome:          " + (cat.getNomeCat() == null ? "Não preenchido ainda" : cat.getNomeCat()));
+        System.out.println("----------------------------------------------");
 
         System.out.println("\n======= Pressione ENTER para continuar =======\n");
         entrada.nextLine();

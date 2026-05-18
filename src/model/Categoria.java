@@ -4,7 +4,8 @@ public class Categoria {
     private int codCat;
     private String nomeCat;
 
-    public Categoria() {}
+    public Categoria() {
+    }
 
     public Categoria(int codCat, String nomeCat) {
         this.codCat = codCat;

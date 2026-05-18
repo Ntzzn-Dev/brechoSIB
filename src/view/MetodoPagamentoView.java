@@ -93,17 +93,29 @@ public class MetodoPagamentoView implements BaseView<MetodoPagamento>{
     public void create(Scanner entrada){
         try{
             System.out.println("CRIAR NOVO MÉTODO DE PAGAMENTO: ");
-            
-            String descMetodoPag = Dados.requestValue(
-                "Digite a descrição do método de pagamento: ", 
-                "NOME: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
+
+            MetodoPagamento mtd = new MetodoPagamento();
+            mtd.setCodMetodoPag(elementList.size() + 1);
+
+            Dados.reviewForm(() -> {
+                if (mtd.getDescMetodoPag() == null) {
+                    mtd.setDescMetodoPag(
+                        Dados.requestValue(
+                            "Digite a descrição do método de pagamento: ", 
+                            "NOME: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
+            }, () -> {
+                review (mtd, entrada);
+            });
+
             System.out.println("");
 
-            elementList.add(new MetodoPagamento(elementList.size() + 1, descMetodoPag));
+            elementList.add(mtd);
 
             System.out.println("Método de pagamento registrado!");
             System.out.println("==============================================\n");
@@ -117,7 +129,7 @@ public class MetodoPagamentoView implements BaseView<MetodoPagamento>{
         try{
             System.out.println("EDITAR MÉTODO DE PAGAMENTO: ");
             
-            MetodoPagamento mtd = requestByCod(
+            MetodoPagamento mtdOld = requestByCod(
                 Dados.requestCod(
                     "Digite o código do método de pagamento que deseja alterar: ", 
                     "EDIÇÃO",
@@ -127,53 +139,69 @@ public class MetodoPagamentoView implements BaseView<MetodoPagamento>{
                 )
             );
 
-            String descMetodoPag = Dados.requestValue(
-                "Deixe em branco para manter ("+mtd.getDescMetodoPag()+")\nDigite a nova descrição: ", 
-                "DESCRIÇÃO: ", 
-                "< CANCELANDO EDIÇÂO >",
-                true,
-                entrada
-            );
-            descMetodoPag = descMetodoPag.isEmpty() ? mtd.getDescMetodoPag() : descMetodoPag;
+            MetodoPagamento mtd = new MetodoPagamento();
+            mtd.copyFrom(mtdOld);
 
-            boolean ativoMetodoPag;
-            while (true) {
-                System.out.println("Deixe em branco para manter (" + mtd.getAtivoMetodoPag() + ")");
-                System.out.print("O método de pagamento está ativo? (S/N): ");
-
-                String input = entrada.nextLine().trim().toUpperCase();
-
-                if (input.isEmpty()) {
-                    ativoMetodoPag = mtd.getAtivoMetodoPag();
-                    break;
-                }
-                if (input.equals("S")) {
-                    ativoMetodoPag = true;
-                    break;
-                }
-                if (input.equals("N")) {
-                    ativoMetodoPag = false;
-                    break;
+            Dados.reviewForm(() -> {
+                if (mtd.getDescMetodoPag().equals(mtdOld.getDescMetodoPag())) {
+                    String descMetodoPag = Dados.requestValue(
+                        "Deixe em branco para manter ("+mtd.getDescMetodoPag()+")\nDigite a nova descrição: ", 
+                        "DESCRIÇÃO: ", 
+                        "EDIÇÂO",
+                        true,
+                        entrada
+                    );
+                    descMetodoPag = descMetodoPag.isEmpty() ? mtd.getDescMetodoPag() : descMetodoPag;
+                    mtd.setDescMetodoPag(descMetodoPag);
                 }
 
-                Formatacao.patternError();
-            }
+                if (mtd.getAtivoMetodoPag() == mtdOld.getAtivoMetodoPag()) {
+                    while (true) {
+                        System.out.println("----------------------------------------------");
+                        System.out.println("Deixe em branco para manter (" + mtd.getAtivoMetodoPag() + ")");
+                        System.out.println("O método de pagamento está ativo? ");
+                        System.out.println("Comandos: [/review] [/cancel]");
+                        System.out.println("----------------------------------------------");
+                        System.out.print("ATIVO (S/N): ");
+
+                        String input = entrada.nextLine().trim().toUpperCase();
+
+                        if (input.equals("/review")) {
+                            throw new ReviewOperationException("EDIÇÂO");
+                        } else 
+                        if (input.equals("/cancel")) {
+                            throw new CancelOperationException("EDIÇÂO");
+                        } else 
+                        if (input.equals("S")) {
+                            mtd.setAtivoMetodoPag(true);
+                            break;
+                        } else 
+                        if (input.equals("N")) {
+                            mtd.setAtivoMetodoPag(false);
+                            break;
+                        }
+
+                        Formatacao.patternError();
+                    }
+                }
+            }, () -> {
+                review (mtd, entrada);
+            });
+
             System.out.println("");
-
-            MetodoPagamento newMtd = new MetodoPagamento(mtd.getCodMetodoPag(), descMetodoPag, ativoMetodoPag);
 
             System.out.println("----------------------------------------------");
             System.out.println("MÉTODO DE PAGAMENTO ANTIGO: ");
-            mtd.showMetodoPag();
+            mtdOld.showMetodoPag();
             System.out.println("MÉTODO DE PAGAMENTO ATUALIZADO): ");
-            newMtd.showMetodoPag();
+            mtd.showMetodoPag();
             System.out.println("----------------------------------------------");
 
             while (true) {
                 System.out.print("Deseja salvar a edição do Método de pagamento? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
                 if(opcao == 'S'){
-                    mtd.copyFrom(newMtd);
+                    mtdOld.copyFrom(mtd);
                     System.out.println("\nMétodo de pagamento atualizado!");
                     break;
                 } else if(opcao == 'N') {
@@ -271,6 +299,17 @@ public class MetodoPagamentoView implements BaseView<MetodoPagamento>{
             mtd.showMetodoPag();
             System.out.println("----------------------------------------------");
         }
+
+        System.out.println("\n======= Pressione ENTER para continuar =======\n");
+        entrada.nextLine();
+    }
+
+    public void review(MetodoPagamento mtd, Scanner entrada){
+        System.out.println("----------------------------------------------");
+        System.out.println("Código:        " + (mtd.getCodMetodoPag() == -1 ? "Não preenchido ainda" : mtd.getCodMetodoPag()));
+        System.out.println("Descrição:     " + (mtd.getDescMetodoPag() == null ? "Não preenchido ainda" : mtd.getDescMetodoPag()));
+        System.out.println("Status:        " + (mtd.getAtivoMetodoPag() ? "Ativo" : "Desativado"));
+        System.out.println("----------------------------------------------");
 
         System.out.println("\n======= Pressione ENTER para continuar =======\n");
         entrada.nextLine();

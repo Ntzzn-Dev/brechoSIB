@@ -36,7 +36,7 @@ public class ProdutoView implements BaseView<Produto>{
         }
         throw new IllegalArgumentException("Digite um código válido");
     }
-    
+
     // Controle de Produtos ===========================================================
     @Override
     public void showCRUD(Scanner entrada){
@@ -93,72 +93,100 @@ public class ProdutoView implements BaseView<Produto>{
     public void create(Scanner entrada){
         try{
             System.out.println("CRIAR NOVO PRODUTO: ");
-            
-            String descProd = Dados.requestValue(
-                "Digite a descrição do produto: ", 
-                "DESCRIÇÃO: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
-            System.out.println("");
 
-            String tam;
-            while (true) {
-                System.out.println("Digite o tamanho do produto");
-                System.out.println("(Caso não saiba, liste os tamanhos com /list)");
-                System.out.print("TAMANHO: ");
-                try{
-                    String input = entrada.nextLine();
+            Produto prod = new Produto();
+            prod.setCodProd(elementList.size() + 1);
 
-                    if(input.equals("/list")){
-                        Formatacao.mostrarCartazTamanhos();
-                        continue;
-                    }
-
-                    tam = Formatacao.formatarTamanho(input);
-                    break;
-                } catch (IllegalArgumentException e) {
-                    Formatacao.patternError(e);
+            Dados.reviewForm(() -> {
+                if (prod.getDescProd() == null) {
+                    prod.setDescProd(
+                        Dados.requestValue(
+                            "Digite a descrição do produto: ", 
+                            "DESCRIÇÃO: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
                 }
-            }
+
+                if (prod.getTamanhoProd() == null) {
+                    while (true) {
+                        System.out.println("----------------------------------------------");
+                        System.out.println("Digite o tamanho do produto");
+                        System.out.println("Comandos: [/review] [/list] [/cancel]");
+                        System.out.println("----------------------------------------------");
+                        System.out.print("TAMANHO: ");
+                        try{
+                            String input = entrada.nextLine();
+
+                            if(input.equals("/list")){
+                                Formatacao.mostrarCartazTamanhos();
+                                continue;
+                            } else
+                            if (input.equals("/cancel")){
+                                throw new CancelOperationException("CRIAÇÃO");
+                            } else
+                            if (input.equals("/review")){
+                                throw new ReviewOperationException("CRIAÇÃO");
+                            }
+
+                            System.out.println("");
+                            prod.setTamanhoProd(Formatacao.formatarTamanho(input));
+                        } catch (IllegalArgumentException e) {
+                            Formatacao.patternError(e);
+                        }
+                    }
+                }
+
+                if (prod.getMarcaProd() == null) {
+                    prod.setMarcaProd(
+                       BancoDeDados.marcaV.requestByCod(
+                            Dados.requestCod(
+                                "Digite o código da marca: ", 
+                                "CRIAÇÃO",
+                                false,
+                                BancoDeDados.marcaV,
+                                entrada
+                            )
+                        )
+                    );
+                }
+
+                if (prod.getCatProd() == null) {
+                    prod.setCatProd(
+                       BancoDeDados.categoriaV.requestByCod(
+                                Dados.requestCod(
+                                "Digite o código da categoria: ", 
+                                "CRIAÇÃO",
+                                false,
+                                BancoDeDados.categoriaV,
+                                entrada
+                            )
+                        )
+                    );
+                }
+
+                if (prod.getVendaProd() == null) {
+                    prod.setVendaProd(
+                        BancoDeDados.vendaV.requestByCod(
+                            Dados.requestCod(
+                                "Digite o código da venda: ", 
+                                "CRIAÇÃO",
+                                false,
+                                BancoDeDados.vendaV,
+                                entrada
+                            )
+                        )
+                    );
+                }
+            }, () -> {
+                review (prod, entrada);
+            });
+            
             System.out.println("");
 
-
-            Marca marca = BancoDeDados.marcaV.requestByCod(
-                    Dados.requestCod(
-                    "Digite o código da marca: ", 
-                    "CRIAÇÃO",
-                    false,
-                    BancoDeDados.marcaV,
-                    entrada
-                )
-            );
-            System.out.println("");
-
-            Categoria cat = BancoDeDados.categoriaV.requestByCod(
-                    Dados.requestCod(
-                    "Digite o código da categoria: ", 
-                    "CRIAÇÃO",
-                    false,
-                    BancoDeDados.categoriaV,
-                    entrada
-                )
-            );
-            System.out.println("");
-
-            Venda venda = BancoDeDados.vendaV.requestByCod(
-                    Dados.requestCod(
-                    "Digite o código da venda: ", 
-                    "CRIAÇÃO",
-                    false,
-                    BancoDeDados.vendaV,
-                    entrada
-                )
-            );
-            System.out.println("");
-
-            elementList.add(new Produto(elementList.size() + 1, descProd, tam, marca, cat, venda));
+            elementList.add(prod);
 
             System.out.println("Produto registrado!");
             System.out.println("==============================================\n");
@@ -174,7 +202,7 @@ public class ProdutoView implements BaseView<Produto>{
         try{
             System.out.println("EDITAR PRODUTO: ");
             
-            Produto prod = requestByCod(
+            Produto prodOld = requestByCod(
                     Dados.requestCod(
                     "Digite o código da produto que deseja alterar: ", 
                     "EDIÇÃO",
@@ -184,80 +212,117 @@ public class ProdutoView implements BaseView<Produto>{
                 )
             );
 
-            String descProd = Dados.requestValue(
-                "Deixe em branco para manter ("+prod.getDescProd()+")\nDigite a nova descrição: ", 
-                "DESCRIÇÃO: ",
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            descProd = descProd.isEmpty() ? prod.getDescProd() : descProd;
+            Produto prod = new Produto();
+            prod.copyFrom(prodOld);
 
-            String tam;
-            while (true) {
-                System.out.println("Deixe em branco para manter ("+prod.getTamanhoProd()+")");
-                System.out.print("Digite o novo tamanho do produto: ");
-                System.out.println("(Caso não saiba, liste os tamanhos)");
-                try{
-                    tam = Formatacao.formatarTamanho(entrada.nextLine());
-                    tam = tam.isEmpty() ? prod.getTamanhoProd() : tam;
-                    break;
-                } catch (IllegalArgumentException e) {
-                    Formatacao.patternError(e);
+            Dados.reviewForm(() -> {
+                if (prod.getDescProd().equals(prodOld.getDescProd())) {
+                    String descProd = Dados.requestValue(
+                        "Deixe em branco para manter ("+prod.getDescProd()+")\nDigite a nova descrição: ", 
+                        "DESCRIÇÃO: ",
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    descProd = descProd.isEmpty() ? prod.getDescProd() : descProd;
+                    prod.setDescProd(descProd);
                 }
-            }
+
+                if (prod.getTamanhoProd().equals(prodOld.getTamanhoProd())) {
+                    while (true) {
+                        System.out.println("----------------------------------------------");
+                        System.out.println("Deixe em branco para manter ("+prod.getTamanhoProd()+")\nDigite o tamanho do produto");
+                        System.out.println("Comandos: [/review] [/list] [/cancel]");
+                        System.out.println("----------------------------------------------");
+                        System.out.print("TAMANHO: ");
+                        try{
+                            String input = entrada.nextLine();
+
+                            if(input.equals("/list")){
+                                Formatacao.mostrarCartazTamanhos();
+                                continue;
+                            } else
+                            if (input.equals("/cancel")){
+                                throw new CancelOperationException("CRIAÇÃO");
+                            } else
+                            if (input.equals("/review")){
+                                throw new ReviewOperationException("CRIAÇÃO");
+                            }
+                            
+                            String tam = Formatacao.formatarTamanho(input);
+                            tam = tam.isEmpty() ? prod.getTamanhoProd() : tam;
+
+                            System.out.println("");
+                            prod.setTamanhoProd(tam);
+                        } catch (IllegalArgumentException e) {
+                            Formatacao.patternError(e);
+                        }
+                    }
+                }
+
+                if (prod.getMarcaProd().getCodMarca() == prodOld.getMarcaProd().getCodMarca()) {
+                    int respostaM = Dados.requestCod(
+                        "Deixe em branco para manter ("+prod.getMarcaProd().getNomeMarca()+")\nDigite o código da marca: ",
+                        "EDIÇÃO",
+                        true,
+                        BancoDeDados.marcaV,
+                        entrada
+                    );
+                    
+                    Marca marca = BancoDeDados.marcaV.requestByCod(respostaM == -1 ? prod.getMarcaProd().getCodMarca() : respostaM);
+                    System.out.println("Marca selecionada: " + marca.getNomeMarca());  
+                    System.out.println("");
+                    prod.setMarcaProd(marca);
+                }
+
+                if (prod.getCatProd().getCodCat() == prodOld.getCatProd().getCodCat()) {
+                    int respostaC = Dados.requestCod(
+                        "Deixe em branco para manter ("+prod.getCatProd().getNomeCat()+")\nDigite o código da categoria: ", 
+                        "EDIÇÃO",
+                        true,
+                        BancoDeDados.categoriaV,
+                        entrada
+                    );
+
+                    Categoria cat = BancoDeDados.categoriaV.requestByCod(respostaC == -1 ? prod.getCatProd().getCodCat() : respostaC);
+                    System.out.println("Marca selecionada: " + cat.getNomeCat());  
+                    System.out.println("");
+                    prod.setCatProd(cat);
+                }
+
+                if (prod.getVendaProd().getCodVenda() == prodOld.getVendaProd().getCodVenda()) {
+                    int respostaV = Dados.requestCod(
+                        "Deixe em branco para manter ("+prod.getVendaProd().getCodVenda()+")\nDigite o código da venda: ", 
+                        "EDIÇÃO",
+                        true,
+                        BancoDeDados.vendaV,
+                        entrada
+                    );
+                    
+                    Venda venda = BancoDeDados.vendaV.requestByCod(respostaV == -1 ? prod.getVendaProd().getCodVenda() : respostaV);
+                    System.out.println("Venda selecionada");  
+                    System.out.println("");
+                    prod.setVendaProd(venda);
+                }
+
+            }, () -> {
+                review (prod, entrada);
+            });
+
             System.out.println("");
-
-            int respostaM = Dados.requestCod(
-                "Deixe em branco para manter ("+prod.getMarcaProd().getNomeMarca()+")\nDigite o código da marca: ",
-                "EDIÇÃO",
-                true,
-                BancoDeDados.marcaV,
-                entrada
-            );
-            
-            Marca marca = BancoDeDados.marcaV.requestByCod(respostaM == -1 ? prod.getMarcaProd().getCodMarca() : respostaM);
-            System.out.println("Marca selecionada: " + marca.getNomeMarca());  
-            System.out.println("");
-
-            int respostaC = Dados.requestCod(
-                "Deixe em branco para manter ("+prod.getCatProd().getNomeCat()+")\nDigite o código da categoria: ", 
-                "EDIÇÃO",
-                true,
-                BancoDeDados.categoriaV,
-                entrada
-            );
-
-            Categoria cat = BancoDeDados.categoriaV.requestByCod(respostaC == -1 ? prod.getCatProd().getCodCat() : respostaC);
-            System.out.println("Marca selecionada: " + cat.getNomeCat());  
-            System.out.println("");
-
-            int respostaV = Dados.requestCod(
-                "Deixe em branco para manter ("+prod.getVendaProd().getCodVenda()+")\nDigite o código da venda: ", 
-                "EDIÇÃO",
-                true,
-                BancoDeDados.vendaV,
-                entrada
-            );
-            
-            Venda venda = BancoDeDados.vendaV.requestByCod(respostaV == -1 ? prod.getVendaProd().getCodVenda() : respostaV);
-            System.out.println("Venda selecionada");  
-            System.out.println("");
-
-            Produto newProd = new Produto(prod.getCodProd(), descProd, tam, marca, cat, venda);
 
             System.out.println("----------------------------------------------");
             System.out.println("PRODUTO ANTIGA: ");
-            prod.showProp();
+            prodOld.showProp();
             System.out.println("PRODUTO ATUALIZADA): ");
-            newProd.showProp();
+            prod.showProp();
             System.out.println("----------------------------------------------");
 
             while (true) {
                 System.out.print("Deseja salvar a edição da produto? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
                 if(opcao == 'S'){
-                    prod.copyFrom(newProd);
+                    prodOld.copyFrom(prod);
                     System.out.println("\nProduto atualizada!");
                     break;
                 } else if(opcao == 'N') {
@@ -356,6 +421,20 @@ public class ProdutoView implements BaseView<Produto>{
             prod.showProp();
             System.out.println("----------------------------------------------");
         }
+
+        System.out.println("\n======= Pressione ENTER para continuar =======\n");
+        entrada.nextLine();
+    }
+
+    public void review(Produto prod, Scanner entrada){
+        System.out.println("----------------------------------------------");
+        System.out.println("Código:        " + (prod.getCodProd() == -1 ? "Não preenchido ainda" : prod.getCodProd()));
+        System.out.println("Descrição:     " + (prod.getDescProd() == null ? "Não preenchido ainda" : prod.getDescProd()));
+        System.out.println("Tamanho:       " + (prod.getTamanhoProd() == null ? "Não preenchido ainda" : prod.getTamanhoProd()));
+        System.out.println("Marca:         " + (prod.getMarcaProd() == null ? "Não preenchido ainda" : prod.getMarcaProd().getNomeMarca()));
+        System.out.println("Categoria:     " + (prod.getCatProd() == null ? "Não preenchido ainda" : prod.getCatProd().getNomeCat()));
+        System.out.println("Código Venda:  " + (prod.getVendaProd() == null ? "Não preenchido ainda" : prod.getVendaProd().getCodVenda()));
+        System.out.println("----------------------------------------------");
 
         System.out.println("\n======= Pressione ENTER para continuar =======\n");
         entrada.nextLine();

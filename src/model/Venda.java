@@ -14,7 +14,9 @@ public class Venda {
     // 1 - PAGA
     // 2 - CANCELADA
 
-    public Venda() {}
+    public Venda() {
+        this.status = 0;
+    }
 
     public Venda(int codVenda, String dataVenda, Cliente clienteVenda,
                  Funcionario funcVenda, double valorTotal, int status) {

@@ -109,7 +109,7 @@ public class Formatacao{
         System.out.println("\nX>>==-- Erro: " + e.getMessage() + " --==<<X\n");
     }
     public static void patternError(CancelOperationException e){
-        System.out.println("\nX>>==-- < CANCELANDO " + e.getMessage() + " > --==<<X\n");
+        System.out.println("\nX>>==-- " + e.getMessage() + " --==<<X\n");
     }
     public static void patternError(char e){
         System.out.println("\nX>>==-- Entrada: " + e + " inválida --==<<X\n");

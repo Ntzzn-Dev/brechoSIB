@@ -36,69 +36,6 @@ public class EnderecoView implements BaseView<Endereco>{
         }
         throw new IllegalArgumentException("Digite um código válido");
     }
-
-    public Endereco searchEnd(Scanner entrada){
-        Endereco end;
-        while (true) {
-            System.out.println("1 - Realizar uma consulta");
-            System.out.println("2 - Cadastrar novo endereço");
-            System.out.println("3 - Indicar o endereço para essa pessoa");
-            System.out.print("Opção: ");
-            int opcao = entrada.nextInt();
-            entrada.nextLine();
-            int codEnd;
-            switch(opcao){
-                case 1:
-                    read(entrada);
-                    break;
-                case 2:
-                    codEnd = createAndSaveCod(entrada);
-                    end = requestByCod(codEnd);
-                    if(end != null) return end;
-                    break;
-                case 3:
-                    System.out.print("Digite o código do endereço: ");
-                    codEnd = entrada.nextInt();
-                    entrada.nextLine();
-                    end = requestByCod(codEnd);
-                    if(end != null) return end;
-                    break;
-            }
-        }
-    }
-
-    public Endereco searchEnd(Scanner entrada, Endereco end){
-        while (true) {
-            System.out.println("1 - Realizar uma consulta");
-            System.out.println("2 - Cadastrar novo endereço");
-            System.out.println("3 - Indicar o endereço para essa pessoa");
-            System.out.println("4 - Manter endereço atual");
-            System.out.print("Opção: ");
-            int opcao = entrada.nextInt();
-            entrada.nextLine();
-            int codEnd;
-            switch(opcao){
-                case 1:
-                    read(entrada);
-                    break;
-                case 2:
-                    codEnd = createAndSaveCod(entrada);
-                    end = requestByCod(codEnd);
-                    if(end != null) return end;
-                    break;
-                case 3:
-                    System.out.print("Digite o código do endereço: ");
-                    codEnd = entrada.nextInt();
-                    entrada.nextLine();
-                    end = requestByCod(codEnd);
-                    if(end != null) return end;
-                    break;
-                case 4: 
-                    if(end != null) return end;
-                    break;
-            }
-        }
-    }
     
      // Controle de endereço ==================================================
     @Override
@@ -161,67 +98,102 @@ public class EnderecoView implements BaseView<Endereco>{
         try{
             System.out.println("CRIAR NOVO ENDEREÇO: ");
 
-            String ufEnd = Dados.requestValue(
-                "Digite o UF: ", 
-                "UF: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
+            int newCodEnd = elementList.size() + 1;
+            Endereco end = new Endereco();
+            end.setCodEnd(newCodEnd);
 
-            String cepEnd = Dados.requestValue(
-                "Digite o CEP: ", 
-                "CEP: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
+            Dados.reviewForm(() -> {
+                if (end.getUf() == null) {
+                    end.setUf(
+                        Dados.requestValue(
+                            "Digite o UF: ", 
+                            "UF: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
 
-            String cidadeEnd = Dados.requestValue(
-                "Digite a cidade: ", 
-                "CIDADE: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
 
-            String bairroEnd = Dados.requestValue(
-                "Digite o bairro: ", 
-                "BAIRRO: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
+                if (end.getCep() == null) {
+                    end.setCep(
+                        Dados.requestValue(
+                            "Digite o CEP: ", 
+                            "CEP: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
+                
+                if (end.getCidade() == null) {
+                    end.setCidade(
+                        Dados.requestValue(
+                            "Digite a cidade: ", 
+                            "CIDADE: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
 
-            String logradouroEnd = Dados.requestValue(
-                "Digite o logradouro: ", 
-                "LOGRADOURO: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
+                if (end.getBairro() == null) {
+                    end.setBairro(
+                        Dados.requestValue(
+                            "Digite o bairro: ", 
+                            "BAIRRO: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
 
-            String numeroEnd = Dados.requestValue(
-                "Digite o numero: ", 
-                "NUMERO: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
+                if (end.getLogradouro() == null) {
+                    end.setLogradouro(
+                        Dados.requestValue(
+                            "Digite o logradouro: ", 
+                            "LOGRADOURO: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
 
-            String complementoEnd = Dados.requestValue(
-                "Digite o complemento: ", 
-                "COMPLEMENTO: ", 
-                "CRIAÇÃO",
-                true,
-                entrada
-            );
+                if (end.getNumero() == null) {
+                    end.setNumero(
+                        Dados.requestValue(
+                            "Digite o numero: ", 
+                            "NUMERO: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
+                
+                if (end.getComplemento() == null) {
+                    end.setComplemento(
+                        Dados.requestValue(
+                            "Digite o complemento: ", 
+                            "COMPLEMENTO: ", 
+                            "CRIAÇÃO",
+                            true,
+                            entrada
+                        )
+                    );
+                }
+            }, () -> {
+                review(end, entrada);
+            });
 
             System.out.println("");
 
-            int newCodEnd = elementList.size() + 1;
-
-            elementList.add(new Endereco(newCodEnd, ufEnd, cepEnd, cidadeEnd, bairroEnd, logradouroEnd, numeroEnd, complementoEnd));
+            elementList.add(end);
 
             System.out.println("Endereço registrado!");
             System.out.println("==============================================\n");
@@ -237,7 +209,7 @@ public class EnderecoView implements BaseView<Endereco>{
         try{
             System.out.println("EDITAR ENDEREÇO: ");
 
-            Endereco end = requestByCod(
+            Endereco endOld = requestByCod(
                 Dados.requestCod(
                     "Digite o Codigo do endereço que deseja alterar: ", 
                     "EDIÇÃO",
@@ -247,84 +219,111 @@ public class EnderecoView implements BaseView<Endereco>{
                 )
             );
 
-            String ufEnd = Dados.requestValue(
-                "Deixe em branco para manter ("+end.getUf()+")\nDigite o novo uf:", 
-                "UF: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            ufEnd = ufEnd.isEmpty() ? end.getUf() : ufEnd;
-
-            String cepEnd = Dados.requestValue(
-                "Deixe em branco para manter ("+end.getCep()+")\nDigite o novo cep:", 
-                "CEP: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            cepEnd = cepEnd.isEmpty() ? end.getCep() : cepEnd;
+            Endereco end = new Endereco();
+            end.copyFrom(endOld);
             
-            String cidadeEnd = Dados.requestValue(
-                "Deixe em branco para manter ("+end.getCidade()+")\nDigite a nova cidade:", 
-                "CIDADE: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            cidadeEnd = cidadeEnd.isEmpty() ? end.getCidade() : cidadeEnd;
+            Dados.reviewForm(() -> {
+                if (end.getUf().equals(endOld.getUf())) {
+                    String ufEnd = Dados.requestValue(
+                        "Deixe em branco para manter ("+end.getUf()+")\nDigite o novo UF: ", 
+                        "UF: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    ufEnd = ufEnd.isEmpty() ? endOld.getUf() : ufEnd;
+                    end.setUf(ufEnd);
+                }
 
-            String bairroEnd = Dados.requestValue(
-                "Deixe em branco para manter ("+end.getBairro()+")\nDigite o novo bairro:", 
-                "BAIRRO: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            bairroEnd = bairroEnd.isEmpty() ? end.getBairro() : bairroEnd;
+                if (end.getCep().equals(endOld.getCep())) {
+                    String cepEnd = Dados.requestValue(
+                        "Deixe em branco para manter ("+end.getCep()+")\nDigite o novo UF: ", 
+                        "CEP: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    cepEnd = cepEnd.isEmpty() ? endOld.getCep() : cepEnd;
+                    end.setCep(cepEnd);
+                }
 
-            String logradouroEnd = Dados.requestValue(
-                "Deixe em branco para manter ("+end.getBairro()+")\nDigite o novo logradouro:", 
-                "LOGRADOURO: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            logradouroEnd = logradouroEnd.isEmpty() ? end.getLogradouro() : logradouroEnd;
+                if (end.getCidade().equals(endOld.getCidade())) {
+                    String cidadeEnd = Dados.requestValue(
+                        "Deixe em branco para manter ("+endOld.getCidade()+")\nDigite a nova cidade:", 
+                        "CIDADE: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    cidadeEnd = cidadeEnd.isEmpty() ? endOld.getCidade() : cidadeEnd;
+                    end.setCidade(cidadeEnd);
+                }
 
-            String numeroEnd = Dados.requestValue(
-                "Deixe em branco para manter ("+end.getNumero()+")\nDigite o novo numero:", 
-                "NUMERO: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            numeroEnd = numeroEnd.isEmpty() ? end.getNumero() : numeroEnd;
+                if (end.getBairro().equals(endOld.getBairro())) {
+                    String bairroEnd = Dados.requestValue(
+                        "Deixe em branco para manter ("+endOld.getBairro()+")\nDigite o novo bairro:", 
+                        "BAIRRO: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    bairroEnd = bairroEnd.isEmpty() ? endOld.getBairro() : bairroEnd;
+                    end.setBairro(bairroEnd);
+                }
 
-            String complementoEnd = Dados.requestValue(
-                "Deixe em branco para manter ("+end.getComplemento()+")\nDigite o novo complemento:", 
-                "COMPLEMENTO: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            complementoEnd = complementoEnd.isEmpty() ? end.getComplemento() : complementoEnd;
+                if (end.getLogradouro().equals(endOld.getLogradouro())) {
+                    String logradouroEnd = Dados.requestValue(
+                        "Deixe em branco para manter ("+endOld.getLogradouro()+")\nDigite o novo logradouro:", 
+                        "LOGRADOURO: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    logradouroEnd = logradouroEnd.isEmpty() ? endOld.getLogradouro() : logradouroEnd;
+                    end.setLogradouro(logradouroEnd);
+                }
+
+                if (end.getNumero().equals(endOld.getNumero())) {
+                    String numeroEnd = Dados.requestValue(
+                        "Deixe em branco para manter ("+endOld.getNumero()+")\nDigite o novo numero:", 
+                        "NUMERO: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    numeroEnd = numeroEnd.isEmpty() ? endOld.getNumero() : numeroEnd;
+                    end.setNumero(numeroEnd);
+                }
+
+                if (end.getComplemento().equals(endOld.getComplemento())) {
+                    String complementoEnd = Dados.requestValue(
+                        "Deixe em branco para manter ("+endOld.getComplemento()+")\nDigite o novo complemento:", 
+                        "COMPLEMENTO: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    complementoEnd = complementoEnd.isEmpty() ? endOld.getComplemento() : complementoEnd;
+                    end.setComplemento(complementoEnd);
+                }
+            }, () -> {
+                review(end, entrada);
+            });
+            
             System.out.println("");
-
-            Endereco newEnd = new Endereco(end.getCodEnd(), ufEnd, cepEnd, cidadeEnd, bairroEnd, logradouroEnd, numeroEnd, complementoEnd);
 
             System.out.println("----------------------------------------------");
             System.out.println("ENDEREÇO ANTIGO: ");
-            end.showProp();
+            endOld.showProp();
             System.out.println("ENDEREÇO ATUALIZADO): ");
-            newEnd.showProp();
+            end.showProp();
             System.out.println("----------------------------------------------");
 
             while (true) {
                 System.out.print("Deseja salvar a edição do endereço? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
                 if(opcao == 'S'){
-                    end.copyFrom(newEnd);
+                    endOld.copyFrom(end);
                     System.out.println("\nEndereço atualizado!");
                     break;
                 } else if(opcao == 'N') {
@@ -422,6 +421,22 @@ public class EnderecoView implements BaseView<Endereco>{
             end.showProp();
             System.out.println("----------------------------------------------");
         }
+
+        System.out.println("\n======= Pressione ENTER para continuar =======\n");
+        entrada.nextLine();
+    }
+
+    public void review(Endereco end, Scanner entrada){
+        System.out.println("----------------------------------------------");
+        System.out.println("Código:        " + (end.getCodEnd() == -1 ? "Não preenchido ainda" : end.getCodEnd()));
+        System.out.println("UF:            " + (end.getUf() == null ? "Não preenchido ainda" : end.getUf()));
+        System.out.println("CEP:           " + (end.getCep() == null ? "Não preenchido ainda" : end.getCep()));
+        System.out.println("Cidade:        " + (end.getCidade() == null ? "Não preenchido ainda" : end.getCidade()));
+        System.out.println("Bairro:        " + (end.getBairro() == null ? "Não preenchido ainda" : end.getBairro()));
+        System.out.println("Logradouro:    " + (end.getLogradouro() == null ? "Não preenchido ainda" : end.getLogradouro()));
+        System.out.println("Número:        " + (end.getNumero() == null ? "Não preenchido ainda" : end.getNumero()));
+        System.out.println("Complemento:   " + (end.getComplemento() == null ? "Não preenchido ainda" : end.getComplemento()));
+        System.out.println("----------------------------------------------");
 
         System.out.println("\n======= Pressione ENTER para continuar =======\n");
         entrada.nextLine();

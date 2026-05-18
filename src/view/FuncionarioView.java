@@ -20,7 +20,7 @@ public class FuncionarioView implements BaseView<Funcionario>{
 
     public Funcionario requestByCpf(String cpf){
         for (Funcionario f : elementList) {
-            if (Formatacao.limparCpf(f.getCpfPessoa()) == Formatacao.limparCpf(cpf)) {
+            if (Formatacao.limparCpf(f.getCpfPessoa()).equals(Formatacao.limparCpf(cpf))) {
                 return f;
             }
         }
@@ -29,7 +29,7 @@ public class FuncionarioView implements BaseView<Funcionario>{
     
     public boolean searchByPK(String value){
         for (Funcionario f : elementList) {
-            if (Formatacao.limparCpf(f.getCpfPessoa()) == Formatacao.limparCpf(value)) {
+            if (Formatacao.limparCpf(f.getCpfPessoa()).equals(Formatacao.limparCpf(value))) {
                 return true;
             }
         }
@@ -93,45 +93,71 @@ public class FuncionarioView implements BaseView<Funcionario>{
     public void create(Scanner entrada){
         try{
             System.out.println("CRIAR NOVO FUNCIONÁRIO: ");
+
+            Funcionario func = new Funcionario();
+
+            Dados.reviewForm(() -> {
+                if (func.getCpfPessoa() == null) {
+                    func.setCpfPessoa(
+                        Dados.requestValue(
+                        "Digite o CPF: ", 
+                        "CPF: ", 
+                        "CRIAÇÃO",
+                        false,
+                        entrada)
+                    );
+                }
+
+                if (func.getNomePessoa() == null) {
+                        func.setNomePessoa(
+                            Dados.requestValue(
+                            "Digite o nome: ", 
+                            "NOME: ", 
+                            "CRIAÇÃO",
+                            false,
+                            entrada
+                        )
+                    );
+                }
+
+
+                if (func.getTelPessoa() == null) {
+                    func.setTelPessoa(
+                        Dados.requestValue(
+                            "Digite o telefone: ", 
+                            "TEL: ", 
+                            "CRIAÇÃO",
+                            true,
+                            entrada
+                        )
+                    );
+                }
             
-            String cpfFunc = Dados.requestValue(
-                "Digite o CPF: ", 
-                "CPF: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
-        
-            String nomeFunc = Dados.requestValue(
-                "Digite o nome: ", 
-                "NOME: ", 
-                "CRIAÇÃO",
-                false,
-                entrada
-            );
+                if (func.getEndPessoa() == null) {
+                    func.setEndPessoa(
+                        Dados.searchEnd(entrada)
+                    );
+                }
 
-            String telFunc = Dados.requestValue(
-                "Digite o telefone: ", 
-                "TEL: ", 
-                "CRIAÇÃO",
-                true,
-                entrada
-            );
-        
-            Endereco end = BancoDeDados.enderecoV.searchEnd(entrada);
-
-            double salFunc = Double.parseDouble(
-                Dados.requestValue(
-                    "Digite o salário: ", 
-                    "SALÁRIO: ", 
-                    "CRIAÇÃO",
-                    true,
-                    entrada
-                )
-            );
+                if (func.getSalarioFunc() == 0) {
+                    func.setSalarioFunc(
+                        Double.parseDouble(
+                            Dados.requestValue(
+                                "Digite o salário: ", 
+                                "SALÁRIO: ", 
+                                "CRIAÇÃO",
+                                true,
+                                entrada
+                            )
+                        )
+                    );
+                }
+            },() -> {
+                review(func, entrada);
+            });
             System.out.println("");
 
-            elementList.add(new Funcionario(cpfFunc, nomeFunc, telFunc, end, salFunc));
+            elementList.add(func);
 
             System.out.println("Funcionário registrado!");
             System.out.println("==============================================\n");
@@ -144,8 +170,8 @@ public class FuncionarioView implements BaseView<Funcionario>{
     public void update(Scanner entrada){
         try{
             System.out.println("EDITAR FUNCIONÁRIO: ");
-            
-            Funcionario func = requestByCpf(
+
+            Funcionario funcOld = requestByCpf(
                 Dados.requestCpf(
                     "Digite o CPF do Funcionário que deseja alterar: ",
                     "CPF: ",
@@ -155,59 +181,80 @@ public class FuncionarioView implements BaseView<Funcionario>{
                 )
             );
 
-            String newCpfFunc = Dados.requestValue(
-                "Deixe em branco para manter ("+func.getCpfPessoa()+")\nDigite o novo CPF: ", 
-                "CPF: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            newCpfFunc = newCpfFunc.isEmpty() ? func.getCpfPessoa() : newCpfFunc;
+            Funcionario func = new Funcionario();
+            func.copyFrom(funcOld);
 
-            String nomeFunc = Dados.requestValue(
-                "Deixe em branco para manter ("+func.getNomePessoa()+")\nDigite o novo nome: ", 
-                "NOME: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            nomeFunc = nomeFunc.isEmpty() ? func.getNomePessoa() : nomeFunc;
+            Dados.reviewForm(() -> {
+                if (func.getCpfPessoa().equals(funcOld.getCpfPessoa())) {
+                    String newCpfFunc = Dados.requestValue(
+                        "Deixe em branco para manter ("+func.getCpfPessoa()+")\nDigite o novo CPF: ",
+                        "CPF: ",
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    newCpfFunc = newCpfFunc.isEmpty() ? func.getCpfPessoa() : newCpfFunc;
+                    func.setCpfPessoa(newCpfFunc);
+                }
 
-            String telFunc = Dados.requestValue(
-                "Deixe em branco para manter ("+func.getTelPessoa()+")\nDigite o novo telefone: ", 
-                "TEL: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            telFunc = telFunc.isEmpty() ? func.getTelPessoa() : telFunc;
-        
-            Endereco end = BancoDeDados.enderecoV.searchEnd(entrada, func.getEndPessoa());
+                if (func.getNomePessoa().equals(funcOld.getNomePessoa())) {
+                    String nomeFunc = Dados.requestValue(
+                        "Deixe em branco para manter ("+func.getNomePessoa()+")\nDigite o novo nome: ", 
+                        "NOME: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    nomeFunc = nomeFunc.isEmpty() ? func.getNomePessoa() : nomeFunc;
+                    func.setNomePessoa(nomeFunc);
+                }
 
-            String inputSal = Dados.requestValue(
-                "Deixe em branco para manter ("+func.getSalarioFunc()+")\nDigite o novo salário: ", 
-                "SALÁRIO: ", 
-                "EDIÇÃO",
-                true,
-                entrada
-            );
-            double salFunc = inputSal.isEmpty() ? func.getSalarioFunc() : Double.parseDouble(inputSal);
+                if (func.getTelPessoa().equals(funcOld.getTelPessoa())) {
+                    String telFunc = Dados.requestValue(
+                        "Deixe em branco para manter ("+func.getTelPessoa()+")\nDigite o novo telefone: ", 
+                        "TEL: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    telFunc = telFunc.isEmpty() ? func.getTelPessoa() : telFunc;
+                    func.setTelPessoa(telFunc);
+                }
+
+                if (func.getEndPessoa() == null) {
+                    func.setEndPessoa(
+                        Dados.searchEnd(entrada)
+                    );
+                }
+
+                if (func.getSalarioFunc() == funcOld.getSalarioFunc()) {
+                    String inputSal = Dados.requestValue(
+                        "Deixe em branco para manter ("+func.getSalarioFunc()+")\nDigite o novo salário: ", 
+                        "SALÁRIO: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    double salFunc = inputSal.isEmpty() ? func.getSalarioFunc() : Double.parseDouble(inputSal);
+                    func.setSalarioFunc(salFunc);
+                }
+            }, () -> {
+                review(func, entrada);
+            });
             System.out.println("");
-
-            Funcionario newFunc = new Funcionario(newCpfFunc, nomeFunc, telFunc, end, salFunc);
 
             System.out.println("----------------------------------------------");
             System.out.println("FUNCIONÁRIO ANTIGO: ");
-            func.showFunc();
+            funcOld.showFunc();
             System.out.println("FUNCIONÁRIO ATUALIZADO): ");
-            newFunc.showFunc();
+            func.showFunc();
             System.out.println("----------------------------------------------");
 
             while (true) {
                 System.out.print("Deseja salvar a edição do funcionário? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
                 if(opcao == 'S'){
-                    func.copyFrom(newFunc);
+                    funcOld.copyFrom(func);
                     System.out.println("\nFuncionário atualizado!");
                     break;
                 } else if(opcao == 'N') {
@@ -306,6 +353,22 @@ public class FuncionarioView implements BaseView<Funcionario>{
             func.showFunc();
             System.out.println("----------------------------------------------");
         }
+
+        System.out.println("\n======= Pressione ENTER para continuar =======\n");
+        entrada.nextLine();
+    }
+
+    public void review(Funcionario func, Scanner entrada){
+        System.out.println("----------------------------------------------");
+        System.out.println("CPF:           " + (func.getCpfPessoa() == null ? "Não preenchido ainda" : func.getCpfPessoa()));
+        System.out.println("Nome:          " + (func.getNomePessoa() == null ? "Não preenchido ainda" : func.getNomePessoa()));
+        System.out.println("Telefone:      " + (func.getTelPessoa() == null ? "Não preenchido ainda" : func.getTelPessoa()));
+        System.out.println("Salário: R$    " + (func.getTelPessoa() == null ? "Não preenchido ainda" : func.getTelPessoa()));
+        System.out.print("\nEndereco:      ");
+        System.out.println(func.getEndPessoa() == null ? "Não preenchido ainda" : "");
+        if (func.getEndPessoa() != null)
+            func.getEndPessoa().showProp();
+        System.out.println("----------------------------------------------");
 
         System.out.println("\n======= Pressione ENTER para continuar =======\n");
         entrada.nextLine();

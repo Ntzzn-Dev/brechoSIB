@@ -39,9 +39,8 @@ public class VendaPagamento {
 
     public void showVendaPag(){
         System.out.println(
-            "Método: " + this.getMetodoPagamento().getDescMetodoPag() + 
-            //"\n" + this.getVenda().getCodVenda() +
-            "\nR$: " + String.format("%.2f", this.getValorPago()));
+            "Método:     " + this.getMetodoPagamento().getDescMetodoPag() + 
+            "\nParcela R$: " + String.format("%.2f", this.getValorPago()));
     }
 
     public void copyFrom(VendaPagamento vdPg){

@@ -10,7 +10,8 @@ public class Endereco {
     private String numero;
     private String complemento;
 
-    public Endereco() {}
+    public Endereco() {
+    }
 
     public Endereco(int codEnd, String uf, String cep, String cidade, String bairro, String logradouro, String numero, String complemento) {
         this.codEnd = codEnd;
@@ -88,6 +89,7 @@ public class Endereco {
     }
 
     public void copyFrom(Endereco end){
+        this.setCodEnd(end.getCodEnd());
         this.setUf(end.getUf());
         this.setCep(end.getCep());
         this.setCidade(end.getCidade());
