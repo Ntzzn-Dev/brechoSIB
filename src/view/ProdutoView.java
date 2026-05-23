@@ -166,20 +166,6 @@ public class ProdutoView implements BaseView<Produto>{
                         )
                     );
                 }
-
-                if (prod.getVendaProd() == null) {
-                    prod.setVendaProd(
-                        BancoDeDados.vendaV.requestByCod(
-                            Dados.requestCod(
-                                "Digite o código da venda: ", 
-                                "CRIAÇÃO",
-                                false,
-                                BancoDeDados.vendaV,
-                                entrada
-                            )
-                        )
-                    );
-                }
             }, () -> {
                 review (prod, entrada);
             });
@@ -289,22 +275,6 @@ public class ProdutoView implements BaseView<Produto>{
                     System.out.println("");
                     prod.setCatProd(cat);
                 }
-
-                if (prod.getVendaProd().getCodVenda() == prodOld.getVendaProd().getCodVenda()) {
-                    int respostaV = Dados.requestCod(
-                        "Deixe em branco para manter ("+prod.getVendaProd().getCodVenda()+")\nDigite o código da venda: ", 
-                        "EDIÇÃO",
-                        true,
-                        BancoDeDados.vendaV,
-                        entrada
-                    );
-                    
-                    Venda venda = BancoDeDados.vendaV.requestByCod(respostaV == -1 ? prod.getVendaProd().getCodVenda() : respostaV);
-                    System.out.println("Venda selecionada");  
-                    System.out.println("");
-                    prod.setVendaProd(venda);
-                }
-
             }, () -> {
                 review (prod, entrada);
             });
@@ -433,7 +403,7 @@ public class ProdutoView implements BaseView<Produto>{
         System.out.println("Tamanho:       " + (prod.getTamanhoProd() == null ? "Não preenchido ainda" : prod.getTamanhoProd()));
         System.out.println("Marca:         " + (prod.getMarcaProd() == null ? "Não preenchido ainda" : prod.getMarcaProd().getNomeMarca()));
         System.out.println("Categoria:     " + (prod.getCatProd() == null ? "Não preenchido ainda" : prod.getCatProd().getNomeCat()));
-        System.out.println("Código Venda:  " + (prod.getVendaProd() == null ? "Não preenchido ainda" : prod.getVendaProd().getCodVenda()));
+        System.out.println("Status:        " + (prod.getStatusVendido() ? "Vendido" : "Disponível"));
         System.out.println("----------------------------------------------");
 
         System.out.println("\n======= Pressione ENTER para continuar =======\n");

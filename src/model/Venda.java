@@ -1,6 +1,7 @@
 package model;
 
 import utils.Formatacao;
+import java.util.List;
 
 public class Venda {
     private int codVenda;
@@ -9,6 +10,8 @@ public class Venda {
     private Funcionario funcVenda;
     private double valorTotal;
     private int status;
+    private List<Produto> produtos;
+    private List<VendaPagamento> pagamentos;
 
     // 0 - CRIADA
     // 1 - PAGA
@@ -19,13 +22,15 @@ public class Venda {
     }
 
     public Venda(int codVenda, String dataVenda, Cliente clienteVenda,
-                 Funcionario funcVenda, double valorTotal, int status) {
+                 Funcionario funcVenda, double valorTotal, int status, List<Produto> produtos, List<VendaPagamento> pagamentos) {
         this.codVenda = codVenda;
         this.dataVenda = dataVenda;
         this.clienteVenda = clienteVenda;
         this.funcVenda = funcVenda;
         this.valorTotal = valorTotal;
         this.status = status;
+        this.produtos = produtos;
+        this.pagamentos = pagamentos;
     }
 
     public int getCodVenda() {
@@ -72,6 +77,31 @@ public class Venda {
         return status;
     }
 
+    public void setProdutos(List<Produto> produtos) {
+        this.produtos = produtos;
+    }
+
+    public List<Produto> getProdutos() {
+        return produtos;
+    }
+
+    public void addProdutos(Produto produto) {
+        produto.setStatusVendido(true);
+        this.produtos.add(produto);
+    }
+    
+    public void setPagamentos(List<VendaPagamento> pagamentos) {
+        this.pagamentos = pagamentos;
+    }
+
+    public List<VendaPagamento> getPagamentos() {
+        return pagamentos;
+    }
+
+    public void addPagamentos(VendaPagamento pagamento) {
+        this.pagamentos.add(pagamento);
+    }
+
     public String getStatusString() {
         switch (status){
             case 0:
@@ -108,6 +138,8 @@ public class Venda {
         this.setClienteVenda(venda.getClienteVenda());
         this.setFuncVenda(venda.getFuncVenda());
         this.setValorTotal(venda.getValorTotal());
+        this.setProdutos(venda.getProdutos());
+        this.setPagamentos(venda.getPagamentos());
     }
 
     public boolean searchByTerm(String termo) {

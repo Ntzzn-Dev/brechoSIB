@@ -3,6 +3,7 @@ package utils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.ArrayList;
 
 import model.*;
 import view.*;
@@ -143,6 +144,34 @@ public class BancoDeDados {
     }
 
     // =========================================================
+    // PRODUTOS
+    // =========================================================
+
+    public static void serializePro() {
+        if (produtoV != null) return;
+        produtoV = new ProdutoView();
+
+        serializeMar();
+        serializeCat();
+
+        List<Marca> marcas = marcaV.getElementList();
+        List<Categoria> categorias = categoriaV.getElementList();
+
+        produtoV.insertList(List.of(
+            new Produto(1, "Camiseta básica branca", "M", marcas.get(0), categorias.get(0), false),
+            new Produto(2, "Calça jeans slim", "42", marcas.get(1), categorias.get(1), false),
+            new Produto(3, "Jaqueta couro preta", "G", marcas.get(2), categorias.get(2), true),
+            new Produto(4, "Vestido floral verão", "P", marcas.get(3), categorias.get(3), false),
+            new Produto(5, "Shorts esportivo", "M", marcas.get(4), categorias.get(4), false),
+            new Produto(6, "Tênis corrida", "42", marcas.get(0), categorias.get(5), true),
+            new Produto(7, "Camisa Polo", "M", marcas.get(6), categorias.get(6), false),
+            new Produto(8, "Camiseta oversized", "GG", marcas.get(1), categorias.get(0), false),
+            new Produto(9, "Calça moletom", "G", marcas.get(5), categorias.get(1), false),
+            new Produto(10, "Tênis casual", "40", marcas.get(2), categorias.get(5), false)
+        ));
+    }
+
+    // =========================================================
     // VENDAS
     // =========================================================
 
@@ -153,61 +182,29 @@ public class BancoDeDados {
         serializeCli();
         serializeFun();
         serializeMtd();
+        serializePro();
 
         List<Cliente> clientes = clienteV.getElementList();
         List<Funcionario> funcs = funcionarioV.getElementList();
 
         LocalDateTime agora = LocalDateTime.now();
-
-        vendaV.insertList(List.of(
-            new Venda(1, agora.minusDays(2).format(FORMATTER), clientes.get(0), funcs.get(0), 199.90, 2),
-            new Venda(2, agora.minusDays(1).format(FORMATTER), clientes.get(1), funcs.get(1), 349.50, 2),
-            new Venda(3, agora.minusHours(5).format(FORMATTER), clientes.get(2), funcs.get(2), 89.90, 0),
-            new Venda(4, agora.minusHours(2).format(FORMATTER), clientes.get(3), funcs.get(3), 120.00, 0),
-            new Venda(5, agora.minusDays(3).format(FORMATTER), clientes.get(4), funcs.get(4), 560.75, 1),
-            new Venda(6, agora.minusDays(4).format(FORMATTER), clientes.get(5), funcs.get(5), 220.40, 1),
-            new Venda(7, agora.minusMinutes(30).format(FORMATTER), clientes.get(6), funcs.get(6), 75.99, 0)
-        ));
+        List<MetodoPagamento> mtd = metodoPagamentoV.getElementList(); 
+        List<Produto> p = produtoV.getElementList(); 
         
-        List<MetodoPagamento> mtd = metodoPagamentoV.getElementList();
-        List<Venda> vnd = vendaV.getElementList();
-
-        vendaV.insertVendasPagamentosList(List.of(
-            new VendaPagamento(mtd.get(3), vnd.get(4), 300.75),
-            new VendaPagamento(mtd.get(2), vnd.get(4), 260.00),
-
-            new VendaPagamento(mtd.get(0), vnd.get(5), 100.40),
-            new VendaPagamento(mtd.get(1), vnd.get(5), 120.00)
-        ));
-    }
-
-    // =========================================================
-    // PRODUTOS
-    // =========================================================
-
-    public static void serializePro() {
-        if (produtoV != null) return;
-        produtoV = new ProdutoView();
-
-        serializeMar();
-        serializeCat();
-        serializeVen();
-
-        List<Marca> marcas = marcaV.getElementList();
-        List<Categoria> categorias = categoriaV.getElementList();
-        List<Venda> vendas = vendaV.getElementList();
-
-        produtoV.insertList(List.of(
-            new Produto(1, "Camiseta básica branca", "M", marcas.get(0), categorias.get(0), vendas.get(0)),
-            new Produto(2, "Calça jeans slim", "42", marcas.get(1), categorias.get(1), vendas.get(1)),
-            new Produto(3, "Jaqueta couro preta", "G", marcas.get(2), categorias.get(2), vendas.get(2)),
-            new Produto(4, "Vestido floral verão", "P", marcas.get(3), categorias.get(3), vendas.get(3)),
-            new Produto(5, "Shorts esportivo", "M", marcas.get(4), categorias.get(4), vendas.get(4)),
-            new Produto(6, "Tênis corrida", "42", marcas.get(0), categorias.get(5), vendas.get(5)),
-            new Produto(7, "Camisa Polo", "M", marcas.get(6), categorias.get(6), vendas.get(6)),
-            new Produto(8, "Camiseta oversized", "GG", marcas.get(1), categorias.get(0), vendas.get(0)),
-            new Produto(9, "Calça moletom", "G", marcas.get(5), categorias.get(1), vendas.get(1)),
-            new Produto(10, "Tênis casual", "40", marcas.get(2), categorias.get(5), vendas.get(2))
+        vendaV.insertList(List.of(
+            new Venda(1, agora.minusDays(2).format(FORMATTER), clientes.get(0), funcs.get(0), 199.90, 2,new ArrayList<>() ,new ArrayList<>()),
+            new Venda(2, agora.minusDays(1).format(FORMATTER), clientes.get(1), funcs.get(1), 349.50, 2,new ArrayList<>() ,new ArrayList<>()),
+            new Venda(3, agora.minusHours(5).format(FORMATTER), clientes.get(2), funcs.get(2), 89.90, 0, new ArrayList<>() ,new ArrayList<>()),
+            new Venda(4, agora.minusHours(2).format(FORMATTER), clientes.get(3), funcs.get(3), 120.00, 0, new ArrayList<>() ,new ArrayList<>()),
+            new Venda(5, agora.minusDays(3).format(FORMATTER), clientes.get(4), funcs.get(4), 560.75, 1,new ArrayList<>(List.of(p.get(2))),List.of(
+                new VendaPagamento(mtd.get(3), 300.75),
+                new VendaPagamento(mtd.get(2), 260.00)
+            )),
+            new Venda(6, agora.minusDays(4).format(FORMATTER), clientes.get(5), funcs.get(5), 220.40, 1, new ArrayList<>(List.of(p.get(5))) , List.of(
+                new VendaPagamento(mtd.get(0), 100.40),
+                new VendaPagamento(mtd.get(1), 120.00)
+            )),
+            new Venda(7, agora.minusMinutes(30).format(FORMATTER), clientes.get(6), funcs.get(6), 75.99, 0, new ArrayList<>() ,new ArrayList<>())
         ));
     }
 }

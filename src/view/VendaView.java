@@ -11,20 +11,13 @@ import utils.*;
 
 public class VendaView implements BaseView<Venda>{
     private List<Venda> elementList = new ArrayList<>();
-    private List<VendaPagamento> vendasPagamentosList = new ArrayList<>();
 
     public void insertList(List<Venda> list){
         this.elementList = new ArrayList<>(list);
     }
-    public void insertVendasPagamentosList(List<VendaPagamento> list){
-        this.vendasPagamentosList = new ArrayList<>(list);
-    }
 
     public List<Venda> getElementList(){
         return this.elementList;
-    }
-    public List<VendaPagamento> getVendasPagamentosList(){
-        return this.vendasPagamentosList;
     }
         
     public Venda requestByCod(int codVenda){
@@ -59,11 +52,12 @@ public class VendaView implements BaseView<Venda>{
                 System.out.println("=================== VENDAS ===================");
                 System.out.println("                                              ");
                 System.out.println("1 -               Criar venda              - 1");
-                System.out.println("2 -               Pagar venda              - 2");
-                System.out.println("3 -              Cancelar venda            - 3");
-                System.out.println("4 -           Listar todas vendas          - 4");
-                System.out.println("5 -             Procurar venda             - 5");
-                System.out.println("6 -   Listar formas de pagamento da venda  - 6");
+                System.out.println("2 -       Adicionar produtos na venda      - 2");
+                System.out.println("3 -               Pagar venda              - 3");
+                System.out.println("4 -              Cancelar venda            - 4");
+                System.out.println("5 -           Listar todas vendas          - 5");
+                System.out.println("6 -             Procurar venda             - 6");
+                System.out.println("7 -            Visualizar venda            - 7");
                 System.out.println("9 -              <- Voltar ->              - 9");
                 System.out.println("");
                 System.out.println("");
@@ -81,16 +75,19 @@ public class VendaView implements BaseView<Venda>{
                         update(entrada);
                         break;
                     case 3:
-                        delete(entrada);
+                        payVenda(entrada);
                         break;
                     case 4:
-                        list(entrada);
+                        delete(entrada);
                         break;
                     case 5:
-                        read(entrada);
+                        list(entrada);
                         break;
                     case 6:
-                        showMetodoPagVenda(entrada);
+                        read(entrada);
+                        break;
+                    case 7:
+                        viewVenda(entrada);
                         break;
                     case 9:
                         System.out.println("Voltando pra o menu \n");
@@ -164,6 +161,19 @@ public class VendaView implements BaseView<Venda>{
             
             System.out.println("Venda registrada!");
             System.out.println("==============================================\n");
+
+            while (true) {
+                System.out.print("Deseja adicionar produtos a essa venda? (S/N): ");
+                char opcao = entrada.next().toUpperCase().charAt(0);
+                if(opcao == 'S'){
+                    insertItens(entrada, venda);
+                    break;
+                } else if(opcao == 'N') {
+                    break;
+                } else {
+                    Formatacao.patternError(opcao);
+                }
+            }
         } catch (CancelOperationException e){
             Formatacao.patternError(e);
         }
@@ -172,12 +182,12 @@ public class VendaView implements BaseView<Venda>{
     @Override 
     public void update(Scanner entrada){
         try{
-            System.out.println("PAGAR VENDA: "); 
+            System.out.println("ADICIONAR PRODUTOS NA VENDA: "); 
 
             Venda venda = requestByCod(
                 Dados.requestCod(
-                    "Digite o código da venda que deseja pagar: ", 
-                    "< ABORTAR PAGAMENTO >",
+                    "Digite o código da venda: ", 
+                    "< ABORTAR ADIÇÃO >",
                     false,
                     BancoDeDados.vendaV,
                     entrada
@@ -187,74 +197,68 @@ public class VendaView implements BaseView<Venda>{
             if(venda.getStatus() == 1) throw new CancelOperationException("Venda já está finalizada!!!");
             else if(venda.getStatus() == 2) throw new CancelOperationException("Venda já está cancelada!!!");
 
+            insertItens(entrada, venda);
+        } catch (CancelOperationException e){
+            Formatacao.patternError(e);
+        }
+    }
+
+    public void insertItens(Scanner entrada, Venda venda){
+        try{
             System.out.println("------------------+-----------------");
             venda.showVenda();
             System.out.println("------------------+-----------------");
 
             double vlrTotal = venda.getValorTotal();
 
-            do{
-
-                MetodoPagamento mtdP = BancoDeDados.metodoPagamentoV.requestByCod(
+            while (true){
+                Produto pVenda = BancoDeDados.produtoV.requestByCod(
                     Dados.requestCod(
-                        "Escolha o método de pagamento: ", 
-                        "< ABORTAR PAGAMENTO >",
+                        "Escolha um produto: ", 
+                        "< ABORTAR CARRINHO DE VENDA >",
                         false,
-                        BancoDeDados.metodoPagamentoV,
+                        BancoDeDados.produtoV,
                         entrada
                     )
                 );
 
-                if(!mtdP.getAtivoMetodoPag()){
-                    System.out.println("Método desabilitado, escolha outra forma de pagamento");
+                if(pVenda.getStatusVendido()){
+                    System.out.println("Esse produto ja foi vendido");
                     continue;
                 }
 
-                double valorPago = Double.parseDouble(
-                    Dados.requestValue(
-                        "Digite o valor a ser pago: ", 
-                        "R$: ", 
-                        "< ABORTAR PAGAMENTO >",
-                        false,
-                        entrada
-                    )
-                );
+                venda.addProdutos(pVenda);
 
-                if(vlrTotal < valorPago) {
-                    valorPago = vlrTotal;
-                    vlrTotal = 0;
-                    
-                    System.out.println("Valor maior que necessário, ajustado para: R$" + String.format("%.2f", valorPago));
-                    System.out.println("");
-                } else {
-                    vlrTotal -= valorPago;
+                System.out.println("Produto adicionado: " + pVenda.getDescProd());
+
+                System.out.println("\nDeseja escolher outro item? (S/N)");
+                char opcao = entrada.next().toUpperCase().charAt(0);
+                if(opcao == 'N') {
+                    break;
+                } else if(opcao != 'S'){
+                    Formatacao.patternError(opcao);
                 }
+            }
 
-                vendasPagamentosList.add(new VendaPagamento(mtdP, venda, valorPago));
-            } while (vlrTotal > 0);
-
-            for(VendaPagamento vp : vendasPagamentosList){
-                if(vp.getVenda().getCodVenda() == venda.getCodVenda()){
-                    vp.showVendaPag();
-                    System.out.println("==============================================");
-                }
+            for(Produto p : venda.getProdutos()){
+                p.showProp();
+                System.out.println("==============================================");
             }
             System.out.println("");
 
             while (true) {
-                System.out.print("Deseja concluir o pagamento dessa venda? (S/N)\n[Essa opção não pode ser desfeita] > ");
+                System.out.print("Deseja fazer o pagamento dessa venda? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
                 if(opcao == 'S'){
-                    venda.setStatus(1);
-                    System.out.println("\nVenda paga!");
+                    payVenda(entrada, venda);
                     break;
                 } else if(opcao == 'N') {
-                    System.out.println("\nOperação de pagamento abortada!");
                     break;
                 } else {
                     Formatacao.patternError(opcao);
                 }
             }
+
             System.out.println("==============================================\n");
         } catch (CancelOperationException e){
             Formatacao.patternError(e);
@@ -372,34 +376,135 @@ public class VendaView implements BaseView<Venda>{
         entrada.nextLine();
     }
 
-    public void showMetodoPagVenda(Scanner entrada){
+    public void payVenda(Scanner entrada){
         try{
-            System.out.println("MÉTODOS DE PAGAMENTO DA VENDA: "); 
+            System.out.println("PAGAR VENDA: "); 
 
             Venda venda = requestByCod(
                 Dados.requestCod(
-                    "Digite o código da venda que deseja visualizar: ", 
-                    "< CANCELANDO VISUALIZAÇÃO DE LISTA DE PAGAMENTOS >",
+                    "Digite o código da venda que deseja pagar: ", 
+                    "< ABORTAR PAGAMENTO >",
                     false,
                     BancoDeDados.vendaV,
                     entrada
                 )
             );
 
-            if(venda.getStatus() == 0) throw new CancelOperationException("Venda não está finalizada!!!");
-            else if(venda.getStatus() == 2) throw new CancelOperationException("Venda está cancelada!!!");
+            if(venda.getStatus() == 1) throw new CancelOperationException("Venda já está finalizada!!!");
+            else if(venda.getStatus() == 2) throw new CancelOperationException("Venda já está cancelada!!!");
+        
+            payVenda(entrada, venda);
+        } catch (CancelOperationException e){
+            Formatacao.patternError(e);
+        }
+    }
+
+    public void payVenda(Scanner entrada, Venda venda){
+        try{
+            System.out.println("------------------+-----------------");
+            venda.showVenda();
+            System.out.println("------------------+-----------------");
+
+            double vlrTotal = venda.getValorTotal();
+            List<VendaPagamento> pags = new ArrayList<>();
+
+            do{
+
+                MetodoPagamento mtdP = BancoDeDados.metodoPagamentoV.requestByCod(
+                    Dados.requestCod(
+                        "Escolha o método de pagamento: ", 
+                        "< ABORTAR PAGAMENTO >",
+                        false,
+                        BancoDeDados.metodoPagamentoV,
+                        entrada
+                    )
+                );
+
+                if(!mtdP.getAtivoMetodoPag()){
+                    System.out.println("Método desabilitado, escolha outra forma de pagamento");
+                    continue;
+                }
+
+                double valorPago = Double.parseDouble(
+                    Dados.requestValue(
+                        "Digite o valor a ser pago: ", 
+                        "R$: ", 
+                        "< ABORTAR PAGAMENTO >",
+                        false,
+                        entrada
+                    )
+                );
+
+                if(vlrTotal < valorPago) {
+                    valorPago = vlrTotal;
+                    vlrTotal = 0;
+                    
+                    System.out.println("Valor maior que necessário, ajustado para: R$" + String.format("%.2f", valorPago));
+                    System.out.println("");
+                } else {
+                    vlrTotal -= valorPago;
+                }
+
+                pags.add(new VendaPagamento(mtdP, valorPago));
+            } while (vlrTotal > 0);
+
+            for(VendaPagamento vp : pags){
+                vp.showVendaPag();
+                System.out.println("==============================================");
+            }
+            System.out.println("");
+
+            while (true) {
+                System.out.print("Deseja concluir o pagamento dessa venda? (S/N)\n[Essa opção não pode ser desfeita] > ");
+                char opcao = entrada.next().toUpperCase().charAt(0);
+                if(opcao == 'S'){
+                    venda.setPagamentos(pags);
+                    venda.setStatus(1);
+                    System.out.println("\nVenda paga!");
+                    break;
+                } else if(opcao == 'N') {
+                    System.out.println("\nOperação de pagamento abortada!");
+                    break;
+                } else {
+                    Formatacao.patternError(opcao);
+                }
+            }
+            System.out.println("==============================================\n");
+        } catch (CancelOperationException e){
+            Formatacao.patternError(e);
+        }
+    }
+
+    public void viewVenda(Scanner entrada){
+        try{
+            System.out.println("VISUALIZAR VENDA: "); 
+
+            Venda venda = requestByCod(
+                Dados.requestCod(
+                    "Digite o código da venda que deseja visualizar: ", 
+                    "< CANCELANDO VISUALIZAÇÃO DE VENDA >",
+                    false,
+                    BancoDeDados.vendaV,
+                    entrada
+                )
+            );
 
             System.out.println("------------------+-----------------");
             venda.showVenda();
             System.out.println("------------------+-----------------");
 
+            System.out.println("         PRODUTOS NO CARRINHO       ");
+            System.out.println("------------------+-----------------");
+            for(Produto p : venda.getProdutos()){
+                p.showProp();
+                System.out.println("------------------+-----------------");
+            }
+
             System.out.println("          FORMAS DE PAGAMENTO       ");
             System.out.println("------------------+-----------------");
-            for(VendaPagamento vp : vendasPagamentosList){
-               if (vp.getVenda().getCodVenda() == venda.getCodVenda()) {
-                    vp.showVendaPag();
-                    System.out.println("------------------+-----------------");
-                }
+            for(VendaPagamento vp : venda.getPagamentos()){
+                vp.showVendaPag();
+                System.out.println("------------------+-----------------");
             }
 
             System.out.println("\n======= Pressione ENTER para continuar =======\n");

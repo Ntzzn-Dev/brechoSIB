@@ -2,14 +2,12 @@ package model;
 
 public class VendaPagamento {
     private MetodoPagamento metodoPagamento;
-    private Venda venda;
     private double valorPago;
 
     public VendaPagamento() {}
 
-    public VendaPagamento(MetodoPagamento metodoPagamento, Venda venda, double valorPago) {
+    public VendaPagamento(MetodoPagamento metodoPagamento, double valorPago) {
         this.metodoPagamento = metodoPagamento;
-        this.venda = venda;
         this.valorPago = valorPago;
     }
 
@@ -19,14 +17,6 @@ public class VendaPagamento {
 
     public void setMetodoPagamento(MetodoPagamento metodoPagamento) {
         this.metodoPagamento = metodoPagamento;
-    }
-
-    public Venda getVenda() {
-        return venda;
-    }
-
-    public void setVenda(Venda venda) {
-        this.venda = venda;
     }
 
     public double getValorPago() {
@@ -45,7 +35,6 @@ public class VendaPagamento {
 
     public void copyFrom(VendaPagamento vdPg){
         this.setMetodoPagamento(vdPg.getMetodoPagamento());
-        this.setVenda(vdPg.getVenda());
         this.setValorPago(vdPg.getValorPago());
     }
 

@@ -6,6 +6,9 @@ public class App {
     public static void main(String[] args) throws Exception {
         Scanner entrada = new Scanner(System.in);
         int opcao = 0;
+
+        Login.showLogin(entrada);
+
         try{
             do{
                 System.out.println("==============================================");
