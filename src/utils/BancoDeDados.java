@@ -53,13 +53,13 @@ public class BancoDeDados {
         List<Endereco> ends = enderecoV.getElementList();
 
         funcionarioV.insertList(List.of(
-            new Funcionario("12345678901", "João Silva", "11999999999", ends.get(0), 2500.0),
-            new Funcionario("98765432100", "Maria Souza", "21988888888", ends.get(1), 3200.0),
-            new Funcionario("11122233344", "Carlos Lima", "31977777777", ends.get(2), 2800.0),
-            new Funcionario("22233344455", "Ana Paula", "51966666666", ends.get(3), 3000.0),
-            new Funcionario("33344455566", "Bruno Costa", "41955555555", ends.get(4), 2700.0),
-            new Funcionario("44455566677", "Fernanda Alves", "71944444444", ends.get(5), 3500.0),
-            new Funcionario("55566677788", "Lucas Rocha", "81933333333", ends.get(6), 2900.0)
+            new Funcionario("12345678901", "João Silva", "11999999999", ends.get(0), 2500.0, "aaa"),
+            new Funcionario("98765432100", "Maria Souza", "21988888888", ends.get(1), 3200.0, "bbb"),
+            new Funcionario("11122233344", "Carlos Lima", "31977777777", ends.get(2), 2800.0, "ccc"),
+            new Funcionario("22233344455", "Ana Paula", "51966666666", ends.get(3), 3000.0, "ddd"),
+            new Funcionario("33344455566", "Bruno Costa", "41955555555", ends.get(4), 2700.0, "eee"),
+            new Funcionario("44455566677", "Fernanda Alves", "71944444444", ends.get(5), 3500.0, "fff"),
+            new Funcionario("55566677788", "Lucas Rocha", "81933333333", ends.get(6), 2900.0, "ggg")
         ));
     }
 
@@ -158,16 +158,16 @@ public class BancoDeDados {
         List<Categoria> categorias = categoriaV.getElementList();
 
         produtoV.insertList(List.of(
-            new Produto(1, "Camiseta básica branca", "M", marcas.get(0), categorias.get(0), false),
-            new Produto(2, "Calça jeans slim", "42", marcas.get(1), categorias.get(1), false),
-            new Produto(3, "Jaqueta couro preta", "G", marcas.get(2), categorias.get(2), true),
-            new Produto(4, "Vestido floral verão", "P", marcas.get(3), categorias.get(3), false),
-            new Produto(5, "Shorts esportivo", "M", marcas.get(4), categorias.get(4), false),
-            new Produto(6, "Tênis corrida", "42", marcas.get(0), categorias.get(5), true),
-            new Produto(7, "Camisa Polo", "M", marcas.get(6), categorias.get(6), false),
-            new Produto(8, "Camiseta oversized", "GG", marcas.get(1), categorias.get(0), false),
-            new Produto(9, "Calça moletom", "G", marcas.get(5), categorias.get(1), false),
-            new Produto(10, "Tênis casual", "40", marcas.get(2), categorias.get(5), false)
+            new Produto(1, "Camiseta básica branca", "M", marcas.get(0), categorias.get(0), false, 100),
+            new Produto(2, "Calça jeans slim", "42", marcas.get(1), categorias.get(1), false, 20),
+            new Produto(3, "Jaqueta couro preta", "G", marcas.get(2), categorias.get(2), true, 110),
+            new Produto(4, "Vestido floral verão", "P", marcas.get(3), categorias.get(3), false, 500),
+            new Produto(5, "Shorts esportivo", "M", marcas.get(4), categorias.get(4), false, 140),
+            new Produto(6, "Tênis corrida", "42", marcas.get(0), categorias.get(5), true, 180),
+            new Produto(7, "Camisa Polo", "M", marcas.get(6), categorias.get(6), false, 80),
+            new Produto(8, "Camiseta oversized", "GG", marcas.get(1), categorias.get(0), false, 90),
+            new Produto(9, "Calça moletom", "G", marcas.get(5), categorias.get(1), false, 650),
+            new Produto(10, "Tênis casual", "40", marcas.get(2), categorias.get(5), false, 30)
         ));
     }
 

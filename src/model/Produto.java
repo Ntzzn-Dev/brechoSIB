@@ -7,17 +7,19 @@ public class Produto {
     private Marca marcaProd;
     private Categoria catProd;
     private boolean statusVendido;
+    private double precoProd;
 
     public Produto() {}
 
-    public Produto(int codProd, String descProd, String tamanhoProd,
-                   Marca marcaProd, Categoria catProd, boolean statusVendido) {
+    public Produto(int codProd, String descProd, String tamanhoProd, Marca marcaProd, 
+            Categoria catProd, boolean statusVendido, double precoProd) {
         this.codProd = codProd;
         this.descProd = descProd;
         this.tamanhoProd = tamanhoProd;
         this.marcaProd = marcaProd;
         this.catProd = catProd;
         this.statusVendido = statusVendido;
+        this.precoProd = precoProd;
     }
 
     public int getCodProd() {
@@ -68,11 +70,19 @@ public class Produto {
         this.statusVendido = vendido;
     }
 
+    public double getPrecoProd() {
+        return precoProd;
+    }
+
+    public void setPrecoProd(double precoProd) {
+        this.precoProd = precoProd;
+    }
+
     public void showProp(){
         System.out.println(
             "CÓDIGO: " + this.getCodProd() + " > " + this.getMarcaProd().getNomeMarca() + " - " + 
             this.getMarcaProd().getNomeMarca() + "\n[" + this.getTamanhoProd() + "] " + this.getCatProd().getNomeCat() + 
-            ", produto " + (this.getStatusVendido() ? "vendido" : "disponível"));
+            ", R$: " + this.getPrecoProd() + "\nproduto " + (this.getStatusVendido() ? "vendido" : "disponível"));
     }
 
     public void copyFrom(Produto prod){

@@ -26,3 +26,4 @@ Sinta-se à vontade para abrir issues ou sugerir melhorias!
 - **v1.0** → Versão inicial, porém quase completa localmente
 - **v1.1** → Adição completa da revisão de formulário
 - **v1.2** → Melhoria da lógica da venda e pequenas correções
+- **v1.3** → Adição de senha individual no login

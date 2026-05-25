@@ -9,6 +9,7 @@ import utils.*;
 
 public class FuncionarioView implements BaseView<Funcionario>{
     private List<Funcionario> elementList = new ArrayList<>();
+    private Funcionario funcLogado;
 
     public void insertList(List<Funcionario> list){
         this.elementList = new ArrayList<>(list);
@@ -34,6 +35,14 @@ public class FuncionarioView implements BaseView<Funcionario>{
             }
         }
         throw new IllegalArgumentException("Digite um CPF válido");
+    }
+
+    public void setFuncLogado(Funcionario funcLogado){
+        this.funcLogado = funcLogado;
+    }
+
+    public Funcionario getFuncLogado(){
+        return funcLogado;
     }
 
 
@@ -152,6 +161,18 @@ public class FuncionarioView implements BaseView<Funcionario>{
                         )
                     );
                 }
+
+                if (func.getSenha() == null) {
+                    func.setSenha(
+                        Dados.requestValue(
+                            "Digite a senha do funcionario: ", 
+                            "SENHA: ", 
+                            "CRIAÇÃO",
+                            true,
+                            entrada
+                        )
+                    );
+                }
             },() -> {
                 review(func, entrada);
             });
@@ -238,6 +259,18 @@ public class FuncionarioView implements BaseView<Funcionario>{
                     double salFunc = inputSal.isEmpty() ? func.getSalarioFunc() : Double.parseDouble(inputSal);
                     func.setSalarioFunc(salFunc);
                 }
+
+                if ((func.getCpfPessoa().equals(funcLogado) || func.validarSenha(entrada)) && func.getSenha().equals(funcOld.getSenha())) {
+                    String senhaFunc = Dados.requestValue(
+                        "Deixe em branco para manter \nDigite o novo telefone: ", 
+                        "SENHA: ", 
+                        "EDIÇÃO",
+                        true,
+                        entrada
+                    );
+                    senhaFunc = senhaFunc.isEmpty() ? func.getSenha() : senhaFunc;
+                    func.setSenha(senhaFunc);
+                }
             }, () -> {
                 review(func, entrada);
             });
@@ -287,6 +320,8 @@ public class FuncionarioView implements BaseView<Funcionario>{
                     entrada
                 )
             );
+
+            if(!func.validarSenha(entrada)) throw new CancelOperationException("Remoção impedida");
 
             System.out.println("----------------------------------------------");
             func.showFunc();

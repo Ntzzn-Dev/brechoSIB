@@ -166,6 +166,20 @@ public class ProdutoView implements BaseView<Produto>{
                         )
                     );
                 }
+
+                if (prod.getPrecoProd() == 0.0) {
+                    prod.setPrecoProd(
+                        Double.parseDouble(
+                            Dados.requestValue(
+                                "Deixe em branco para manter ("+prod.getPrecoProd()+")\nDigite o valor do produto: ", 
+                                "VALOR: ",
+                                "EDIÇÃO",
+                                false,
+                                entrada
+                            )
+                        )
+                    );
+                }
             }, () -> {
                 review (prod, entrada);
             });
@@ -274,6 +288,19 @@ public class ProdutoView implements BaseView<Produto>{
                     System.out.println("Marca selecionada: " + cat.getNomeCat());  
                     System.out.println("");
                     prod.setCatProd(cat);
+                }
+
+                if (prod.getPrecoProd() == prodOld.getPrecoProd()) {
+                    String input = Dados.requestValue(
+                        "Deixe em branco para manter ("+prod.getPrecoProd()+")\nDigite o valor do produto: ", 
+                        "VALOR: ",
+                        "EDIÇÃO",
+                        false,
+                        entrada
+                    );
+
+                    double preco = input.isEmpty() ? prod.getPrecoProd() : Double.parseDouble(input);
+                    prod.setPrecoProd(preco);
                 }
             }, () -> {
                 review (prod, entrada);
@@ -403,6 +430,7 @@ public class ProdutoView implements BaseView<Produto>{
         System.out.println("Tamanho:       " + (prod.getTamanhoProd() == null ? "Não preenchido ainda" : prod.getTamanhoProd()));
         System.out.println("Marca:         " + (prod.getMarcaProd() == null ? "Não preenchido ainda" : prod.getMarcaProd().getNomeMarca()));
         System.out.println("Categoria:     " + (prod.getCatProd() == null ? "Não preenchido ainda" : prod.getCatProd().getNomeCat()));
+        System.out.println("Valor:       R$" + (prod.getPrecoProd() == 0.0 ? "Não preenchido ainda" : String.format("%.2f", prod.getPrecoProd())));
         System.out.println("Status:        " + (prod.getStatusVendido() ? "Vendido" : "Disponível"));
         System.out.println("----------------------------------------------");
 

@@ -110,6 +110,7 @@ public class VendaView implements BaseView<Venda>{
             Venda venda = new Venda();
             venda.setCodVenda(elementList.size() + 1);
             venda.setDataVenda(LocalDateTime.now().format(formatter));
+            venda.setFuncVenda(BancoDeDados.funcionarioV.getFuncLogado());
 
             Dados.reviewForm(() -> {
                 if (venda.getClienteVenda() == null) {
@@ -125,32 +126,6 @@ public class VendaView implements BaseView<Venda>{
                     venda.setClienteVenda(cliente);
                     System.out.println("Cliente selecionado: " + cliente.getNomePessoa() + "\n");    
                 }
-
-                if (venda.getFuncVenda() == null) {
-                    Funcionario func = BancoDeDados.funcionarioV.requestByCpf(
-                        Dados.requestCpf(
-                            "Digite o cpf do funcionário: ", 
-                            "CRIAÇÃO",
-                            false,
-                            BancoDeDados.funcionarioV,
-                            entrada
-                        )
-                    );
-                    venda.setFuncVenda(func);
-                    System.out.println("Funcionário selecionado: " + func.getNomePessoa() + "\n");
-                }
-
-                if (venda.getValorTotal() == 0.0) {
-                    venda.setValorTotal(
-                        Double.parseDouble(Dados.requestValue(
-                            "Digite o valor total dessa venda: ", 
-                            "VALOR: ",
-                            "CRIAÇÃO",
-                            false,
-                            entrada
-                        ))
-                    );
-                }
             }, () -> {
                 review(venda, entrada);
             });
@@ -165,6 +140,7 @@ public class VendaView implements BaseView<Venda>{
             while (true) {
                 System.out.print("Deseja adicionar produtos a essa venda? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
+                entrada.nextLine();
                 if(opcao == 'S'){
                     insertItens(entrada, venda);
                     break;
@@ -209,8 +185,6 @@ public class VendaView implements BaseView<Venda>{
             venda.showVenda();
             System.out.println("------------------+-----------------");
 
-            double vlrTotal = venda.getValorTotal();
-
             while (true){
                 Produto pVenda = BancoDeDados.produtoV.requestByCod(
                     Dados.requestCod(
@@ -227,12 +201,14 @@ public class VendaView implements BaseView<Venda>{
                     continue;
                 }
 
+                venda.setValorTotal(venda.getValorTotal() + pVenda.getPrecoProd());
                 venda.addProdutos(pVenda);
 
                 System.out.println("Produto adicionado: " + pVenda.getDescProd());
 
                 System.out.println("\nDeseja escolher outro item? (S/N)");
                 char opcao = entrada.next().toUpperCase().charAt(0);
+                entrada.nextLine();
                 if(opcao == 'N') {
                     break;
                 } else if(opcao != 'S'){
@@ -249,6 +225,7 @@ public class VendaView implements BaseView<Venda>{
             while (true) {
                 System.out.print("Deseja fazer o pagamento dessa venda? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
+                entrada.nextLine();
                 if(opcao == 'S'){
                     payVenda(entrada, venda);
                     break;
@@ -290,6 +267,7 @@ public class VendaView implements BaseView<Venda>{
             while (true) {
                 System.out.print("Deseja realmente cancelar a venda? (S/N): ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
+                entrada.nextLine();
                 if(opcao == 'S'){
                     venda.setStatus(2);
                     System.out.println("\nVenda cancelada!");
@@ -409,7 +387,6 @@ public class VendaView implements BaseView<Venda>{
             List<VendaPagamento> pags = new ArrayList<>();
 
             do{
-
                 MetodoPagamento mtdP = BancoDeDados.metodoPagamentoV.requestByCod(
                     Dados.requestCod(
                         "Escolha o método de pagamento: ", 
@@ -457,6 +434,7 @@ public class VendaView implements BaseView<Venda>{
             while (true) {
                 System.out.print("Deseja concluir o pagamento dessa venda? (S/N)\n[Essa opção não pode ser desfeita] > ");
                 char opcao = entrada.next().toUpperCase().charAt(0);
+                entrada.nextLine();
                 if(opcao == 'S'){
                     venda.setPagamentos(pags);
                     venda.setStatus(1);

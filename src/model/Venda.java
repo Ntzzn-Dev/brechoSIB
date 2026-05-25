@@ -2,6 +2,7 @@ package model;
 
 import utils.Formatacao;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Venda {
     private int codVenda;
@@ -10,7 +11,7 @@ public class Venda {
     private Funcionario funcVenda;
     private double valorTotal;
     private int status;
-    private List<Produto> produtos;
+    private List<Produto> produtos; 
     private List<VendaPagamento> pagamentos;
 
     // 0 - CRIADA
@@ -19,6 +20,8 @@ public class Venda {
 
     public Venda() {
         this.status = 0;
+        this.produtos = new ArrayList<>();
+        this.pagamentos = new ArrayList<>();
     }
 
     public Venda(int codVenda, String dataVenda, Cliente clienteVenda,

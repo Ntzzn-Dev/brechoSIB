@@ -1,12 +1,17 @@
 package utils;
 
 import java.util.Scanner;
+import java.util.List;
+
+import model.Funcionario;
+import utils.BancoDeDados;
 
 public class Login{
     public static void showLogin(Scanner entrada){
+        BancoDeDados.serializeFun();
         while(true) {
             System.out.println("=================== LOGIN ====================");
-            System.out.print("\n                  USER:");
+            System.out.print("\n                   CPF:");
             String user = entrada.nextLine();
             System.out.print("\n              PASSWORD:");
             String password = entrada.nextLine();
@@ -17,10 +22,20 @@ public class Login{
             
             System.out.println("\n\nUsuário ou senha não encontradas, tente novamente\n\n");
         }
-        System.out.println("\n\nUsuário encontrado, entrando\n\n");
+        String user = BancoDeDados.funcionarioV.getFuncLogado().getNomePessoa();
+        System.out.println("\n\nVocê entrou como " + user + "\n\n");
     }
 
     private static boolean validate(String user, String password){
-        return (user.equals("adm") && password.equals("123"));
+        List<Funcionario> funcs = BancoDeDados.funcionarioV.getElementList();
+
+        for(Funcionario f : funcs){
+            if (f.getCpfPessoa().equals(user) && f.getSenha().equals(password)) {
+                BancoDeDados.funcionarioV.setFuncLogado(f);
+                return true;
+            }
+        }
+
+        return false;
     }
 }
